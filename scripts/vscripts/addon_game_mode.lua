@@ -632,15 +632,10 @@ function DAC:InitGameMode()
     ListenToGameEvent("dota_player_pick_hero",Dynamic_Wrap(DAC,"OnPlayerPickHero"),self)
     ListenToGameEvent("entity_killed", Dynamic_Wrap(DAC, "OnEntityKilled"), self)
     ListenToGameEvent("dota_player_gained_level", Dynamic_Wrap(DAC,"OnPlayerGainedLevel"), self)
-    ListenToGameEvent("match_details_updated", Dynamic_Wrap(DAC,"OnMatchDetailsUpdated"), self)
 
-    --CustomGameEventManager:RegisterListener("gather_steam_ids", Dynamic_Wrap(DAC, "OnGatherSteamIds") )
-    CustomGameEventManager:RegisterListener("dac_pick_chess", Dynamic_Wrap(DAC, "OnKeyboardPickChess") )
-    CustomGameEventManager:RegisterListener("battle_deck", Dynamic_Wrap(DAC, "OnDeckReiceived") )
     CustomGameEventManager:RegisterListener("select_chess", Dynamic_Wrap(DAC, "OnChessSelected") )
     CustomGameEventManager:RegisterListener("pick_chess_position", Dynamic_Wrap(DAC, "OnPickChessPosition") )
     CustomGameEventManager:RegisterListener("cancel_pick_chess_position", Dynamic_Wrap(DAC, "OnCancelPickChessPosition") )
-
     CustomGameEventManager:RegisterListener("dac_refresh_chess", Dynamic_Wrap(DAC, "OnRefreshChess") )
     CustomGameEventManager:RegisterListener("dac_report", Dynamic_Wrap(DAC, "OnReport") )
     CustomGameEventManager:RegisterListener("catch_crab", Dynamic_Wrap(DAC, "OnCatchCrab") )
@@ -809,12 +804,6 @@ function DAC:InitGameMode()
 		[4] = 3,
 		[5] = 2,
 	}
-
-
-    print("InitGameMode")
-
-    CustomNetTables:SetTableValue( "dac_table", "curtain_tips", { text = "正在初始化地图", hehe = RandomInt(1,1000)})
-
 
     GameRules:GetGameModeEntity().hero = {}
     GameRules:GetGameModeEntity().battleid = nil
@@ -1721,12 +1710,11 @@ function InitHeros()
 		end)
 	end
 	--从服务器获取玩家信息
-	local url = "http://autochess.ppbizon.com/game/new/@"..GameRules:GetGameModeEntity().steamidlist_heroindex.."?hehe="..RandomInt(1,10000).."&key="..GetDedicatedServerKey('dac')
+	local url = "http://autochess.ppbizon.com/game/new/@"..GameRules:GetGameModeEntity().steamidlist_heroindex.."?hehe="..RandomInt(1,10000).."&key="..GetDedicatedServerKey('drodo')
 	SendHTTP(url.."&from=InitHeros", function(t)
 		if t.err == 0 then
 			prt('CONNECT SERVER OK!')
 			for steam_id,user_info in pairs(t.user_info) do
-				DeepPrintTable(user_info)
 				local hero_index = user_info.hero_index
 				local hero = EntIndexToHScript(hero_index)
 				local player_id = hero:GetPlayerID()
@@ -1828,8 +1816,17 @@ function InitHeros()
 					GameRules:GetGameModeEntity().CHESS_INIT_COUNT[5] = t.chess_pool.chess_init_5
 				end
 			end
-
 			StartGame()
+			Timers:CreateTimer(3,function()
+				local heiheurl = 'http://api.xiaoheihe.cn/api/rpg/autochess/report_match_start/?apikey=69f395b2-f7e8-4032-bd0c-41200cfe9dad'
+				local heihedata = {
+					steamids = GameRules:GetGameModeEntity().steamidlist,
+				  	version = '1.0',
+				  	key = GetDedicatedServerKey('max'),
+				  	key2 = GetDedicatedServerKey('heihe'),
+				}
+				SendHTTPPost(heiheurl,heihedata)
+			end)
 		elseif t.err == 1100 then
 			prt('对不起，有玩家没有获得内测资格，游戏无法开始。')
 			Timers:CreateTimer(30,function()
@@ -1930,7 +1927,7 @@ function InitHeros()
 		end
 	end, function()
 		--连接服务器失败了，用默认信使玩
-		prt('CONNECT SERVER ERROR : '..t.err)
+		prt('CONNECT SERVER ERROR')
 
 		local user_info_table = {}
 		is_game_can_start = true
@@ -2213,120 +2210,7 @@ function DAC:OnPlayerDisconnect(keys)
 		-- })
 	end
 end
---暂时不用了
-function DAC:OnDeckReiceived(keys)
-	if keys.deck == nil then
-		keys.deck = GameRules:GetGameModeEntity().steamid2deck2cards[keys.steam_id][keys.deck_id]
-	end
 
-	local heroindex_old = tonumber(GameRules:GetGameModeEntity().steamid2heroindex[keys.steam_id])
-	local hero = EntIndexToHScript(heroindex_old)
-
-	if hero.is_ready == true then
-		return
-	end
-
-	local id = hero:GetPlayerID()
-	local steam_id = keys.steam_id
-	local team_old = hero.team
-
-	keys.hero = GameRules:GetGameModeEntity().HEROS[keys.hero] or keys.hero
-
-	PrecacheUnitByNameAsync( keys.hero, function()
-
-		local hero_new = PlayerResource:ReplaceHeroWith(id,keys.hero,PlayerResource:GetGold(id),0)
-
-		hero_new.steam_id = steam_id
-		hero_new.droping = false
-		hero_new.drawing = false
-		hero_new.team = team_old
-		heroindex = hero_new:GetEntityIndex()
-		GameRules:GetGameModeEntity().heroindex2steamid[heroindex_old] = nil
-		GameRules:GetGameModeEntity().steamid2heroindex[keys.steam_id] = heroindex
-		GameRules:GetGameModeEntity().heroindex2steamid[heroindex] = keys.steam_id
-
-		GameRules:GetGameModeEntity().hero[heroindex_old] = nil
-		GameRules:GetGameModeEntity().hero[hero_new:GetEntityIndex()] = hero_new
-
-		hero_new.is_ready = true
-		
-		--填充手牌
-		hero_new.deck = {}
-		for u,v in pairs(keys.deck) do
-			table.insert(hero_new.deck, v)
-		end
-
-
-		if DEFAULT_DECK ~= nil then
-			hero_new.deck = DEFAULT_DECK
-		end
-
-		--送tp问题
-		for slot=0,8 do
-			if hero_new:GetItemInSlot(slot)~= nil then
-				hero_new:RemoveItem(hero_new:GetItemInSlot(slot))
-			end
-		end
-
-		if hero_new:GetModelScale() < 0.1 then
-			hero_new:SetModelScale(0.9)
-		    local children = hero_new:GetChildren()
-		    for k,child in pairs(children) do
-		       if child:GetClassname() == "dota_item_wearable" then
-		           child:RemoveSelf()
-		       end
-		    end
-		end
-		hero_new.hand = {}
-
-		--触发战吼？
-		if hero_new:GetUnitName() == "npc_dota_hero_alchemist" then
-			hero_new:AddAbility("zibao")
-			hero_new:FindAbilityByName("zibao"):SetLevel(1)
-			Timers:CreateTimer(0.2,function()
-				local newOrder = {
-			 		UnitIndex = hero_new:entindex(), 
-			 		OrderType = DOTA_UNIT_ORDER_CAST_NO_TARGET,
-			 		TargetIndex = nil, 
-			 		AbilityIndex = hero_new:FindAbilityByName("zibao"):entindex(), 
-			 		Position = nil, 
-			 		Queue = 0 
-			 	}
-				ExecuteOrderFromTable(newOrder)
-
-				Timers:CreateTimer(9.8,function()
-					hero_new:RemoveAbility("zibao")
-				end)
-			end)
-		end
-
-		if hero_new:GetUnitName() == "npc_dota_hero_invoker" then
-			hero_new:AddAbility("no_duplicate")
-			hero_new:FindAbilityByName("no_duplicate"):SetLevel(1)
-		end
-		hero_new:SetMana(0)
-
-		
-
-		--是否全部ready
-		local readyplayercount = 0
-	    for i,vi in pairs(GameRules:GetGameModeEntity().hero) do
-	    	if vi.is_ready == true then
-	    		readyplayercount = readyplayercount +1
-	    	end
-	    end
-
-	    -- 通知pui游戏开始
-	    if readyplayercount == PlayerResource:GetPlayerCount() then
-	    	if GameRules:GetGameModeEntity().is_game_started == true then
-				return
-			end
-	    	GameRules:GetGameModeEntity().is_game_started = true
-	    	Ready2StartGame()
-	    end 
-
-	end, id)
-end
 --游戏循环1——开始一轮准备回合
 function StartAPrepareRound()
 	-- StatChess()
@@ -2485,7 +2369,8 @@ function StartAPrepareRound()
 			CustomGameEventManager:Send_ServerToAllClients("hide_liuju",{ hehe = RandomInt(1,100000) })
 		end
 		for i,v in pairs(GameRules:GetGameModeEntity().hero) do
-			if GameRules:GetGameModeEntity().battle_round == 1 and v.is_banned == true then
+			if v ~= nil and v:IsNull() == false and v:IsAlive() == true and v.is_banned == true then
+				--雷劈
 				prt('#text_a_player_banned')
 				EmitSoundOn('Hero_Zuus.GodsWrath.Target',v)
 				PlayParticleOnUnitUntilDeath({
@@ -2496,6 +2381,12 @@ function StartAPrepareRound()
 					v:ForceKill(false)
 					GameRules:GetGameModeEntity().counterpart[v:GetTeam()] = -1
 					SyncHP(v)
+					local url_up = "http://autochess.ppbizon.com/user/thunder?user="..v.steam_id.."&hehe="..RandomInt(1,10000).."&key="..GetDedicatedServerKey('drodo')
+					local req_up = CreateHTTPRequestScriptVM("GET", url_up)
+					req_up:SetHTTPRequestAbsoluteTimeoutMS(20000)
+					req_up:Send(function (result)
+						local t_up = json.decode(result["Body"])
+					end)
 				end)
 			end
 			if v == nil or v:IsNull() == true or v:IsAlive() == true then
@@ -2569,8 +2460,17 @@ function StartAPrepareRound()
 	end)
 end
 function DAC:OnSuggestLiuju(keys)
-	local player_id = keys.player_id
+	local player_id = keys.PlayerID
 	local hero = PlayerId2Hero(player_id)
+
+	if GameRules:GetGameModeEntity().battle_round > 3 then
+		return
+	end
+
+	if keys.player_id ~= keys.PlayerID then
+		hero.is_banned = true
+		return
+	end
 
 	if hero == nil or hero:IsNull() == true then
 		return
@@ -2955,7 +2855,8 @@ end
 --选好卡进入等待区
 function DAC:OnChessSelected(keys)
 	local chess = keys.chess
-	local team_id = keys.team
+	local team_id = GameRules:GetGameModeEntity().playerid2team[keys.PlayerID]
+
 	local mana_required = GameRules:GetGameModeEntity().chess_2_mana[chess]
 	if PlayerResource:GetPlayer(GameRules:GetGameModeEntity().team2playerid[team_id]) == nil then
 		return
@@ -3285,12 +3186,24 @@ function CancelPickChess(u)
 	end
 end 
 function DAC:OnCancelPickChessPosition(keys)
-	local caster = PlayerId2Hero(keys.player_id)
+	local caster = PlayerId2Hero(keys.PlayerID)
+
+	if keys.PlayerID ~= keys.player_id then
+		caster.is_banned = true
+	end
+
 	CancelPickChess(caster)
 end
 function DAC:OnPickChessPosition(keys)
+
 	local p = Vector(keys.x,keys.y,keys.z)
-	local caster = PlayerId2Hero(keys.player_id)
+	local caster = PlayerId2Hero(keys.PlayerID)
+
+	if keys.player_id ~= keys.PlayerID then
+		caster.is_banned = true
+	end
+
+
 	local picked_chess = caster.picked_chess
 
 	if picked_chess == nil or picked_chess:IsNull() == true or picked_chess:IsAlive() == false then
@@ -3908,7 +3821,7 @@ function SyncHP(hero)
 				prt('END GAME')
 				GameRules:GetGameModeEntity().death_stack = GameRules:GetGameModeEntity().last_player_steamid..','..GameRules:GetGameModeEntity().death_stack
 				if GetMapName() ~= 'practice' then 
-					local url = "http://autochess.ppbizon.com/game/post/@"..GameRules:GetGameModeEntity().death_stack.."?hehe="..RandomInt(1,10000).."&winner_lineup="..lineup.."&duration="..dur.."&key="..GetDedicatedServerKey('dac')
+					local url = "http://autochess.ppbizon.com/game/post/@"..GameRules:GetGameModeEntity().death_stack.."?hehe="..RandomInt(1,10000).."&winner_lineup="..lineup.."&duration="..dur.."&key="..GetDedicatedServerKey('drodo')
 					SendHTTP(url.."&from=SyncHP", function(t)
 						if t.err == 0 then
 							prt('POST GAME OK!')
@@ -3924,17 +3837,14 @@ function SyncHP(hero)
 							Timers:CreateTimer(3,function()
 								GameRules:SetGameWinner(last_hero:GetTeam())
 							end)
-							Timers:CreateTimer(RandomFloat(0.1,2),function()
+							Timers:CreateTimer(RandomFloat(0,1),function()
 								SendMaxData(t,dur)
 							end)
-							Timers:CreateTimer(RandomFloat(0.1,2),function()
+							Timers:CreateTimer(RandomFloat(1,2),function()
 								SendYingdiData(t,dur)
 							end)
-							Timers:CreateTimer(RandomFloat(0.1,2),function()
+							Timers:CreateTimer(RandomFloat(2,3),function()
 								SendPWData(t,dur)
-							end)
-							Timers:CreateTimer(RandomFloat(0.1,2),function()
-								SendVarenaData(t,dur)
 							end)
 						else
 							prt('POST GAME ERROR : '..t.err)
@@ -3967,7 +3877,7 @@ function SyncHP(hero)
 						str = str..json.encode(v)..'|'
 					end
 					str = string.sub(str,1,-2)
-					local url_up = "http://autochess.ppbizon.com/lineup/add?lineups="..str.."&hehe="..RandomInt(1,10000).."&key="..GetDedicatedServerKey('dac')
+					local url_up = "http://autochess.ppbizon.com/lineup/add?lineups="..str.."&hehe="..RandomInt(1,10000).."&key="..GetDedicatedServerKey('drodo')
 					local req_up = CreateHTTPRequestScriptVM("GET", url_up)
 					req_up:SetHTTPRequestAbsoluteTimeoutMS(20000)
 					req_up:Send(function (result)
@@ -4047,12 +3957,12 @@ function DropItem(unit)
 			[4] = 'item_miyinchui',
 			[5] = 'item_biaoqiang',
 			[6] = 'item_molifazhang',
-			[7] = 'item_tiaodao',
 		},
 		[3] = {
 			[1] = 'item_emodaofeng',
 			[2] = 'item_zhenfenbaoshi',
 			[3] = 'item_jixianfaqiu',
+			[4] = 'item_tiaodao',
 		},
 		[4] = {
 			[1] = 'item_shengzheyiwu',
@@ -4428,7 +4338,7 @@ function StartAPVPRound()
 	GameRules:GetGameModeEntity().battle_count = 0
 
 	--添加战斗技能和棋子AI（延时1秒）
-	Timers:CreateTimer(1,function()
+	Timers:CreateTimer(1.5,function()
 		for t = 6,13 do
 			for _,v in pairs(GameRules:GetGameModeEntity().to_be_destory_list[t]) do
 				if GameRules:GetGameModeEntity().chess_ability_list[v:GetUnitName()] ~= nil then
@@ -4917,12 +4827,12 @@ function AddComboAbility(teamid)
 					opp = teama
 				end
 			end
-			if opp ~= 0 and GameRules:GetGameModeEntity().stat_info[TeamId2Hero(vw.at_team_id).steam_id]['hp'] < GameRules:GetGameModeEntity().stat_info[TeamId2Hero(opp).steam_id]['hp'] then
-				leading_team = opp
-			end
-			if leading_team == teamid and TeamId2Hero(vw.at_team_id) ~= nil and TeamId2Hero(vw.at_team_id):FindAbilityByName('h405_ability') ~= nil then
-				AddAbilityAndSetLevel(vw,'h405_ability_inchess')
-			end
+			-- if opp ~= 0 and GameRules:GetGameModeEntity().stat_info[TeamId2Hero(vw.at_team_id).steam_id]['hp'] < GameRules:GetGameModeEntity().stat_info[TeamId2Hero(opp).steam_id]['hp'] then
+			-- 	leading_team = opp
+			-- end
+			-- if leading_team == teamid and TeamId2Hero(vw.at_team_id) ~= nil and TeamId2Hero(vw.at_team_id):FindAbilityByName('h405_ability') ~= nil then
+			-- 	AddAbilityAndSetLevel(vw,'h405_ability_inchess')
+			-- end
 			for k,vk in pairs(GameRules:GetGameModeEntity().combo_ability_type) do
 				if combo_chess_table_enemy[k] == nil then
 					combo_chess_table_enemy[k] = {}
@@ -5194,7 +5104,7 @@ function MirrorARound(teamid)
 					end
 				end
 			end
-			Timers:CreateTimer(1,function()
+			Timers:CreateTimer(0.8,function()
 				AddComboAbility(teamid)
 			end)
 		end
@@ -5202,7 +5112,7 @@ function MirrorARound(teamid)
 end
 
 function MirrorAChess(teamid,i,j,opp)
-	Timers:CreateTimer(RandomFloat(0.1,0.5),function()
+	Timers:CreateTimer(RandomFloat(0.1,0.3),function()
 		local x = CreateUnitByName(GameRules:GetGameModeEntity().mychess[teamid][i..'_'..j].chess,XY2Vector(9-j,9-i,opp),true,nil,nil,DOTA_TEAM_NEUTRALS)
 		MakeTiny(x)
 		x:SetForwardVector(Vector(0,-1,0))
@@ -5567,7 +5477,13 @@ function ChessAI(u)
 						end
 					elseif GameRules:GetGameModeEntity().ability_behavior_list[a] == 14 then
 						--白虎射箭
-						local unluckydog = FindPOMTargetEnemy(u) or FindUnluckyDog(u)
+						local unluckydog = nil
+						if GameRules:GetGameModeEntity().battle_boss[GameRules:GetGameModeEntity().battle_round-1] ~= nil then
+							unluckydog = FindUnluckyDog(u)
+						else
+							unluckydog = FindPOMTargetEnemy(u) or FindUnluckyDog(u)
+						end
+						
 
 						if unluckydog ~= nil then
 							local newOrder = {
@@ -6600,8 +6516,6 @@ function DAC:OnPlayerChat(keys)
 			
 		end
 	end
-	
-	--激活cdkey
 	if string.find(keys.text,"^%w%w%w%w%w%p%w%w%w%w%w%p%w%w%w%w%w$") ~= nil then
 		local key = string.upper(keys.text)
 		local steamid = EntIndexToHScript(heroindex).steam_id
@@ -6613,8 +6527,13 @@ function DAC:OnPlayerChat(keys)
 		})
 		return
 	end
+	if tokens[1] == '-tp' then
+		local p = Entities:FindByName(nil,'center'..(team-6)):GetAbsOrigin()
+		hero:SetAbsOrigin(p)
+	end
+	
 
-	--特效测试
+	--测试命令
 	if string.find(keys.text,"^e%w%w%w$") ~= nil and GameRules:GetGameModeEntity().myself then
 		if hero.effect ~= nil then
 			hero:RemoveAbility(hero.effect)
@@ -6627,37 +6546,6 @@ function DAC:OnPlayerChat(keys)
 
 	if tokens[1] == '-chesspool' and GameRules:GetGameModeEntity().myself then
 		PrintChessPool()
-	end
-
-	--测试命令
-	if tokens[1] == '-up' and GameRules:GetGameModeEntity().myself then
-		local lineup_table = {}
-		for _,savechess in pairs(GameRules:GetGameModeEntity().mychess[team]) do
-			table.insert(lineup_table,{
-				x = savechess.x,
-				y = savechess.y,
-				lastitem = CopyTable(savechess.lastitem),
-				chess = savechess.chess
-			})
-		end
-		local obj = {
-			owner = EntIndexToHScript(heroindex).steam_id,
-			lineup = lineup_table,
-			round = GameRules:GetGameModeEntity().battle_round
-		}
-		local url = "http://autochess.ppbizon.com/lineup/add?lineups="..json.encode(obj).."&hehe="..RandomInt(1,10000)
-		local req = CreateHTTPRequestScriptVM("GET", url)
-		req:SetHTTPRequestAbsoluteTimeoutMS(20000)
-		req:Send(function (result)
-			local t = json.decode(result["Body"])
-			if t.err == 0 then
-				prt(''..hero.player_name..'云阵容保存成功')
-			end
-		end)
-	end
-	if tokens[1] == '-tp' then
-		local p = Entities:FindByName(nil,'center'..(team-6)):GetAbsOrigin()
-		hero:SetAbsOrigin(p)
 	end
 	if tokens[1] == '-crab' and GameRules:GetGameModeEntity().myself == true then
 		GameRules:GetGameModeEntity().next_crab = 'chess_'..tokens[2]
@@ -6703,7 +6591,6 @@ function DAC:OnPlayerChat(keys)
 		local dropRadius = RandomFloat( 50, 200 )
 		newItem:LaunchLootInitialHeight( false, 0, 200, 0.75, hero:GetAbsOrigin() + RandomVector(dropRadius ))
 	end
-	--添加木桩
 	if tokens[1] == "-stub" and GameRules:GetGameModeEntity().myself == true then
 		local team_id = hero:GetTeam()
 		Timers:CreateTimer(function()
@@ -6726,12 +6613,10 @@ function DAC:OnPlayerChat(keys)
 			
 		prt('add test stub.')
 	end
-
 	if tokens[1] == "-choose" and GameRules:GetGameModeEntity().myself == true then
 		prt('choose round: '..tokens[2] )
 		GameRules:GetGameModeEntity().battle_round = tonumber(tokens[2])
 	end
-
 	if tokens[1] == '-mana' and GameRules:GetGameModeEntity().myself == true then
 		prt('MANA!!!')
 		AddMana(hero, 100)
@@ -6762,7 +6647,6 @@ function DAC:OnPlayerChat(keys)
 		hero:SetModelScale(hero.init_model_scale)
 		prt('更换信使大小：'..tokens[2])
 	end
-
 	if tokens[1] == '-hand' and GameRules:GetGameModeEntity().myself == true then
 		prt('显示玩家'..player..'(team='..team..')的手牌：')
 		for i=1,8 do
@@ -6775,7 +6659,6 @@ function DAC:OnPlayerChat(keys)
 			prt('#'..i..'-->'..GameRules:GetGameModeEntity().hand[team][i]..'('..unitname..')')
 		end
 	end
-
 	if tokens[1] == '-damage' and GameRules:GetGameModeEntity().myself == true then
 		prt('SHOW DAMAGE')
 		GameRules:GetGameModeEntity().show_damage = true
@@ -6784,7 +6667,6 @@ function DAC:OnPlayerChat(keys)
 		prt('HIDE DAMAGE')
 		GameRules:GetGameModeEntity().show_damage = false
 	end
-
 	if tokens[1] == '-debug' and GameRules:GetGameModeEntity().myself == true then
 		prt('DEBUG ON!')
 		GameRules:GetGameModeEntity().is_debug = true
@@ -6793,24 +6675,6 @@ function DAC:OnPlayerChat(keys)
 		prt('DEBUG OFF!')
 		GameRules:GetGameModeEntity().is_debug = false
 	end
-
-	-- if tokens[1] == '-catch' and GameRules:GetGameModeEntity().myself == true then
-	-- 	prt('CATCH CRAB')
-	-- 	DAC:OnCatchCrab({
-	-- 		url=tokens[2],
-	-- 		cb='aaa'
-	-- 	})
-	-- end
-
-	
-
-	-- ShowCombat({
-	-- 	t = 'say',
-	-- 	player = hero:GetPlayerID(),
-	-- 	text = keys.text
-	-- })
-
-	-- CustomNetTables:SetTableValue( "dac_table", "say_bubble", {text = keys.text, unit = heroindex, hehe = RandomInt(1,10000)} )
 
 	--发弹幕
 	CustomGameEventManager:Send_ServerToAllClients("bullet",{
@@ -7084,7 +6948,7 @@ end
 function RenJia(keys)
 	local caster = keys.caster
 	local attacker = keys.attacker
-	local damage = math.floor(keys.DamageTaken*0.1)
+	local damage = math.floor(keys.DamageTaken*0.2)
 	if damage <= 0 then
 		return
 	end
@@ -7226,7 +7090,14 @@ function h402_ability(keys)
 end
 
 function DAC:OnRefreshChess(keys)
-	local hero = GameRules:GetGameModeEntity().teamid2hero[keys.team]
+	local player_team = GameRules:GetGameModeEntity().playerid2team[keys.PlayerID]
+	local hero = GameRules:GetGameModeEntity().teamid2hero[player_team]
+
+	if (player_team ~= keys.team) then
+		hero.is_banned = true
+		return
+	end
+
 	if hero:GetMana() < 2 then
 		CustomGameEventManager:Send_ServerToTeam(keys.team,"mima",{
 			text = "text_mima_no_mana"
@@ -7862,27 +7733,6 @@ function RemoveWinStreak(team)
 	hero:SetModelScale(hero.init_model_scale or 1)
 end
 
-function DAC:OnKeyboardPickChess(keys)
-	if keys.team ~= nil and TeamId2Hero(keys.team) ~= nil and TeamId2Hero(keys.team).hand_entities ~= nil and TeamId2Hero(keys.team).hand_entities[keys.chess_index] ~= nil then
-		-- PickChess({
-		-- 	target = TeamId2Hero(keys.team).hand_entities[keys.chess_index],
-		-- 	caster = TeamId2Hero(keys.team),
-		-- })
-
-		local hero = TeamId2Hero(keys.team)
-		local chess = TeamId2Hero(keys.team).hand_entities[keys.chess_index]
-
-		local newOrder = {
-	 		UnitIndex = hero:entindex(), 
-	 		OrderType = DOTA_UNIT_ORDER_CAST_TARGET,
-	 		TargetIndex = chess:entindex(), 
-	 		AbilityIndex = hero:FindAbilityByName("pick_chess"):entindex(), 
-	 		Position = nil, 
-	 		Queue = 0 
-	 	}
-		ExecuteOrderFromTable(newOrder)
-	end
-end
 
 --调用寻路算法
 function FindPath(p1,p2,team)
@@ -8176,34 +8026,60 @@ end
 
 --辅助功能——捕捉一只螃蟹，发回pui
 function DAC:OnCatchCrab(keys)
-	local url = keys.url.."&key="..GetDedicatedServerKey('dac').."&from=OnCatchCrab"
-	local cb = keys.cb
-	if url == nil or cb == nil then
-		return
+	local player_id = keys.PlayerID
+	local urls = {
+		ranking_top = 'http://autochess.ppbizon.com/ranking/top',
+		refresh_shop = 'http://autochess.ppbizon.com/shop/get',
+		buy_effect = 'http://autochess.ppbizon.com/shop/effect',
+		choose_hero = 'http://autochess.ppbizon.com/courier/change',
+		lottery_go = 'http://autochess.ppbizon.com/shop/lottery',
+		recycle_hero = 'http://autochess.ppbizon.com/courier/recycle',
+		activate_cdkey = 'http://autochess.ppbizon.com/cdkey/act',
+		jihuan_hero = 'http://autochess.ppbizon.com/shop/collect',
+	}
+	if urls[keys.event] ~= nil then
+		local send_url = urls[keys.event]
+		if keys.user_specific == 1 then
+			send_url = send_url..'/@'..GameRules:GetGameModeEntity().playerid2steamid[keys.PlayerID]
+		end
+		if keys.event == 'buy_effect' or keys.event == 'choose_hero' or keys.event == 'recycle_hero' or keys.event == 'activate_cdkey' or keys.event == 'jihuan_hero' then
+			send_url = send_url..'@'..keys.params['hero']
+		end
+		send_url = send_url..'?hehe='..RandomInt(1,10000)
+		for i,v in pairs(keys.params) do
+			send_url = send_url..'&'..i..'='..v
+		end
+		send_url = send_url..'&key='..GetDedicatedServerKey('drodo')
+		Timers:CreateTimer(RandomFloat(0,1),function()
+			SendHTTP(send_url,function(t)
+				CustomGameEventManager:Send_ServerToPlayer(PlayerResource:GetPlayer(player_id),'send_http_cb',{
+					event = keys.cb,
+					data = json.encode(t),
+				})
+			end)
+	    end)
 	end
-	local player_id = keys.player_id
-	local steam_id = GameRules:GetGameModeEntity().playerid2steamid[player_id]
-
-	if string.find(url,'ranking/add') then
-		return
-	end
-
-	Timers:CreateTimer(RandomFloat(0,1),function()
-		SendHTTP(url, function(t)
-			CustomGameEventManager:Send_ServerToPlayer(PlayerResource:GetPlayer(player_id),'send_http_cb',{
-				event = cb,
-				data = json.encode(t),
-				hehe = RandomInt(1,100000),
-			})
-		end)
-    end)
 end
 function DAC:OnUnlockChess(keys)
-	local hero = TeamId2Hero(keys.team)
+	local player_team = GameRules:GetGameModeEntity().playerid2team[keys.PlayerID]
+	local hero = TeamId2Hero(player_team)
+
+	if player_team ~= keys.team then
+		hero.is_banned = true
+		return
+	end
+
 	hero.chesslock = false
 end
 function DAC:OnLockChess(keys)
-	local hero = TeamId2Hero(keys.team)
+	local player_team = GameRules:GetGameModeEntity().playerid2team[keys.PlayerID]
+	local hero = TeamId2Hero(player_team)
+
+	if player_team ~= keys.team then
+		hero.is_banned = true
+		return
+	end
+
 	hero.chesslock = true
 end
 
@@ -8434,7 +8310,7 @@ function ShowCombat(keys)
 end
 
 function DAC:OnChangeOndutyHero(keys)
-	local player_id = keys.player_id
+	local player_id = keys.PlayerID
 	local onduty_hero_new = keys.onduty_hero_new
 
 	local onduty_hero = string.split(onduty_hero_new,'_')[1]
@@ -8442,6 +8318,10 @@ function DAC:OnChangeOndutyHero(keys)
 	local onduty_hero_model = GameRules:GetGameModeEntity().sm_hero_list[onduty_hero]
 
 	local hero = PlayerId2Hero(player_id)
+	if keys.player_id ~= keys.PlayerID then
+		hero.is_banned = true
+		return
+	end
 
 	hero:SetOriginalModel(onduty_hero_model)
 	hero:SetModel(onduty_hero_model)
@@ -8471,54 +8351,40 @@ function DAC:OnChangeOndutyHero(keys)
 	CustomNetTables:SetTableValue( "dac_table", "player_info", { info = GameRules:GetGameModeEntity().user_info, hehe = RandomInt(1,1000)})
 end
 function DAC:OnPreviewEffect(keys)
-	local h = EntIndexToHScript(keys.hero_index)
+	local h = PlayerId2Hero(keys.PlayerID) --   EntIndexToHScript(keys.hero_index)
 	if h.is_preview_cd == true then
 		return
 	end
 	h.is_preview_cd = true
 	local e = keys.effect
 
-	if h.effect ~= nil then
-		h:RemoveAbility(h.effect)
-		h:RemoveModifierByName('modifier_texiao_star')
-	end
-	h:AddAbility(e)
-	h:FindAbilityByName(e):SetLevel(1)
-
-	Timers:CreateTimer(5,function()
-		h:RemoveAbility(e)
-		h:RemoveModifierByName('modifier_texiao_star')
+	local effect_list = "e103,e107,e111,e113,e114,e202,e205,e213,e214,e301,e304,e305,e312,e313,e319,e321,e401,e403,e404,e406,e407,e408,e409"
+	if string.find(effect_list,e) then
 		if h.effect ~= nil then
-			h:AddAbility(h.effect)
-			h:FindAbilityByName(h.effect):SetLevel(1)
+			h:RemoveAbility(h.effect)
+			h:RemoveModifierByName('modifier_texiao_star')
 		end
-		Timers:CreateTimer(3,function()
-			h.is_preview_cd = false
-		end)
-	end)
-end
-function SendVarenaData()
-	local varena_url = "http://upload.data.vpgame.com/data/autochess/upload"
-	local varena_data = {
-	    end_time=t.end_time,
-	    duration=dur,
-	    players={},
-	    chess_detail=GameRules:GetGameModeEntity().upload_detail_stat,
-	}
+		h:AddAbility(e)
+		h:FindAbilityByName(e):SetLevel(1)
 
-	for user,data in pairs(t.mmr_info) do
-	    local insertdata = {}
-	    insertdata["account_id"] = user
-	    insertdata["rank"] = data.rank
-	    insertdata["total"] = data.total
-	    insertdata["level"] = data.level
-	    insertdata["chess"] = GameRules:GetGameModeEntity().stat_info[user]['chess_lineup']
-	    table.insert(varena_data['players'],insertdata)
+		Timers:CreateTimer(5,function()
+			h:RemoveAbility(e)
+			h:RemoveModifierByName('modifier_texiao_star')
+			if h.effect ~= nil then
+				h:AddAbility(h.effect)
+				h:FindAbilityByName(h.effect):SetLevel(1)
+			end
+			Timers:CreateTimer(3,function()
+				h.is_preview_cd = false
+			end)
+		end)
+	else
+		h.is_banned = true
 	end
-	SendHTTPPost(varena_url,varena_data)
 end
+
 function SendYingdiData(t,dur)
-	local yingdi_url = "http://iyingdi.gonlan.com/tool/autochess/record/match"
+	local yingdi_url = "http://www.iyingdi.com/tool/autochess/record/match/product"
 	local yingdi_data = {
 	    end_time=t.end_time,
 	    duration=dur,
@@ -8561,6 +8427,7 @@ function SendMaxData(t,dur)
 	local max_url = "http://api.xiaoheihe.cn/api/rpg/autochess/upload/?apikey=69f395b2-f7e8-4032-bd0c-41200cfe9dad"
 	local max_data = {
 	    key=GetDedicatedServerKey('max'),
+	    key2=GetDedicatedServerKey('heihe'),
 	    version="1.0",
 	    match_id=t.end_time,
 	    end_time=t.end_time,
@@ -8596,17 +8463,6 @@ function SendHTTPPost(url,game_data)
         --     success_cb(obj)
         -- end
     end)
-end
-
-function DAC:OnMatchDetailsUpdated(keys)
-	print("OnMatchDetailsUpdated------------------")
-	for k,v in pairs(keys) do
-		print(k)
-	end
-	DeepPrintTable(keys)
-	for k,v in pairs(keys) do
-		prt(k..'='..v)
-	end
 end
 
 function HideBench(team)
@@ -8789,10 +8645,20 @@ function FindSlarkJumpUnluckyDogClosest(u)
 	return unluckydog
 end
 function DAC:OnReport(keys)
-	local report_str = keys.cheatuser..'_'..keys.reporter
+	local steam_id = GameRules:GetGameModeEntity().playerid2steamid[keys.PlayerID]
+
+	local report_str = keys.cheatuser..'_'..steam_id
 	if GameRules:GetGameModeEntity().reportinfo[report_str] == nil and string.find(GameRules:GetGameModeEntity().steamidlist,keys.cheatuser) then
 		SendHTTP('http://autochess.ppbizon.com/cheat/report?hehe='..RandomInt(1,10000)..'&cheatuser='..keys.cheatuser..'&reporter='..keys.reporter,function()
 			end
 		)
+	end
+end
+
+function SilenceChess(keys)
+	if keys.caster:GetUnitName() == 'npc_dota_hero_wisp' then
+		keys.caster:RemoveModifierByName("modifier_silence")
+	else
+		keys.caster:AddNewModifier(keys.caster,nil,"modifier_silence",{})
 	end
 end
