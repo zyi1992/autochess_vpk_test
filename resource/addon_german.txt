@@ -1,6 +1,6 @@
 ﻿"lang"
 {
-	"Sprache"	"Deutsch/German"
+	"Language"	"German"
 	"Tokens"
 	{
 		"addon_game_name"	"DOTA AUTO CHESS"
