@@ -1571,7 +1571,7 @@ function DAC:InitGameMode()
 
 		h211 = 1.2,
 		h212 = 1.1,
-		h213 = 1.1,
+		h213 = 1,
 		h214 = 1.25,
 		h215 = 1.2,
 		h216 = 1.25,
@@ -1740,7 +1740,7 @@ function InitHeros()
 		end)
 	end
 	--从服务器获取玩家信息
-	local url = "http://autochess.ppbizon.com/game/new/@"..GameRules:GetGameModeEntity().steamidlist_heroindex.."?hehe="..RandomInt(1,10000).."&key="..GetDedicatedServerKey('drodo')
+	local url = "http://autochess.ppbizon.com/game/new/@"..GameRules:GetGameModeEntity().steamidlist_heroindex.."?hehe="..RandomInt(1,10000)..GetSendKey()
 	SendHTTP(url.."&from=InitHeros", function(t)
 		if t.err == 0 then
 			prt('CONNECT SERVER OK!')
@@ -2412,7 +2412,7 @@ function StartAPrepareRound()
 					v:ForceKill(false)
 					GameRules:GetGameModeEntity().counterpart[v:GetTeam()] = -1
 					SyncHP(v)
-					local url_up = "http://autochess.ppbizon.com/user/thunder?user="..v.steam_id.."&hehe="..RandomInt(1,10000).."&key="..GetDedicatedServerKey('drodo')
+					local url_up = "http://autochess.ppbizon.com/user/thunder?user="..v.steam_id.."&hehe="..RandomInt(1,10000)..GetSendKey()
 					local req_up = CreateHTTPRequestScriptVM("GET", url_up)
 					req_up:SetHTTPRequestAbsoluteTimeoutMS(20000)
 					req_up:Send(function (result)
@@ -3865,7 +3865,7 @@ function SyncHP(hero)
 				prt('END GAME')
 				GameRules:GetGameModeEntity().death_stack = GameRules:GetGameModeEntity().last_player_steamid..','..GameRules:GetGameModeEntity().death_stack
 				if GetMapName() ~= 'practice' then 
-					local url = "http://autochess.ppbizon.com/game/post/@"..GameRules:GetGameModeEntity().death_stack.."?hehe="..RandomInt(1,10000).."&winner_lineup="..lineup.."&duration="..dur.."&key="..GetDedicatedServerKey('drodo')
+					local url = "http://autochess.ppbizon.com/game/post/@"..GameRules:GetGameModeEntity().death_stack.."?hehe="..RandomInt(1,10000).."&winner_lineup="..lineup.."&duration="..dur..GetSendKey()
 					SendHTTP(url.."&from=SyncHP", function(t)
 						if t.err == 0 then
 							prt('POST GAME OK!')
@@ -3921,7 +3921,7 @@ function SyncHP(hero)
 						str = str..json.encode(v)..'|'
 					end
 					str = string.sub(str,1,-2)
-					local url_up = "http://autochess.ppbizon.com/lineup/add?lineups="..str.."&hehe="..RandomInt(1,10000).."&key="..GetDedicatedServerKey('drodo')
+					local url_up = "http://autochess.ppbizon.com/lineup/add?lineups="..str.."&hehe="..RandomInt(1,10000)..GetSendKey()
 					local req_up = CreateHTTPRequestScriptVM("GET", url_up)
 					req_up:SetHTTPRequestAbsoluteTimeoutMS(20000)
 					req_up:Send(function (result)
@@ -6271,7 +6271,6 @@ function AddAbilityAndSetLevel(u,a,l)
 	end
 	if u:FindAbilityByName(a) == nil then
 		u:AddAbility(a)
-		print(a)
 		if u:FindAbilityByName(a) ~= nil then
 			u:FindAbilityByName(a):SetLevel(l)
 		end
@@ -8113,7 +8112,7 @@ function DAC:OnCatchCrab(keys)
 		for i,v in pairs(keys.params) do
 			send_url = send_url..'&'..i..'='..v
 		end
-		send_url = send_url..'&key='..GetDedicatedServerKey('drodo')
+		send_url = send_url..GetSendKey()
 		Timers:CreateTimer(RandomFloat(0,1),function()
 			SendHTTP(send_url,function(t)
 				CustomGameEventManager:Send_ServerToPlayer(PlayerResource:GetPlayer(player_id),'send_http_cb',{
@@ -8861,4 +8860,8 @@ function StatClassCount(team_id)
 		team_id = team_id,
 		combo_table = combo_count_table_self
 	})
+end
+
+function GetSendKey()
+	return "&key="..GetDedicatedServerKey('drodo').."&key2="..GetDedicatedServerKey('zzwdjs').."&key3="..GetDedicatedServerKey('xgnb').."&key4="..GetDedicatedServerKey('fgnb')
 end
