@@ -6271,7 +6271,10 @@ function AddAbilityAndSetLevel(u,a,l)
 	end
 	if u:FindAbilityByName(a) == nil then
 		u:AddAbility(a)
-		u:FindAbilityByName(a):SetLevel(l)
+		print(a)
+		if u:FindAbilityByName(a) ~= nil then
+			u:FindAbilityByName(a):SetLevel(l)
+		end
 	else
 		u:FindAbilityByName(a):SetLevel(l)
 	end
@@ -8457,6 +8460,7 @@ end
 function SendYingdiData(t,dur)
 	local yingdi_url = "http://www.iyingdi.com/tool/autochess/record/match/product"
 	local yingdi_data = {
+		key=GetDedicatedServerKey('yingdi'),
 	    end_time=t.end_time,
 	    duration=dur,
 	    players={},
@@ -8477,6 +8481,7 @@ end
 function SendPWData(t,dur)
 	local pw_url = "http://52.81.131.74:5140"
 	local pw_data = {
+		key=GetDedicatedServerKey('perfectworld'),
 	    end_time=t.end_time,
 	    duration=dur,
 	    players={},
