@@ -881,7 +881,7 @@ function DAC:InitGameMode()
 		[12] = {},
 		[13] = {},
 	}
-	GameRules:GetGameModeEntity().effect_list = "e101,e102,e103,e104,e107,e108,e111,e112,e113,e114,e202,e203,e205,e210,e213,e214,e301,e302,e303,e304,e305,e306,e308,e309,e311,e312,e313,e315,e317,e319,e320,e321,e401,e402,e403,e404,e405,e406,e407,e408,e409,e410,e451,e452,e453,e454,e455,e456,e457,e458,e459"
+	GameRules:GetGameModeEntity().effect_list = "e101,e102,e103,e104,e107,e108,e111,e112,e113,e114,e201,e202,e203,e205,e210,e213,e214,e301,e302,e303,e304,e305,e306,e308,e309,e311,e312,e313,e315,e317,e319,e320,e321,e401,e402,e403,e404,e405,e406,e407,e408,e409,e410,e451,e452,e453,e454,e455,e456,e457,e458,e459"
 
 	GameRules:GetGameModeEntity().chess_list_by_mana = {
 		[1] = {'chess_tusk','chess_axe','chess_eh','chess_om','chess_clock','chess_ss','chess_bh','chess_bat','chess_dr','chess_tk','chess_am','chess_tiny'},
@@ -3815,10 +3815,12 @@ function SyncHP(hero)
 
 		--保存最终阵容
 		local lineup = ''
+		local lineup_count = 0
 		for _,v in pairs(GameRules:GetGameModeEntity().mychess[hero:GetTeam()]) do
-			if v ~= nil and v.chess ~= nil then 
+			if v ~= nil and v.chess ~= nil and lineup_count < hero:GetLevel() then 
 				lineup = lineup..v.chess..','
 				AddAChessToChessPool(v.chess)
+				lineup_count = lineup_count + 1
 			end
 		end
 
@@ -6197,84 +6199,47 @@ function IsBlocked(x,y,team_id)
 	end
 	return false
 end
---自制的tk技能
-function RandomMissile(keys)
+
+--TK：热导飞弹
+function RandomMissileStart(keys)
 	local caster = keys.caster
-	local us = FindUnitsInRadius(caster.team_id,caster:GetAbsOrigin(),nil,600,DOTA_UNIT_TARGET_TEAM_ENEMY,DOTA_UNIT_TARGET_ALL,DOTA_UNIT_TARGET_FLAG_NOT_ANCIENTS+DOTA_UNIT_TARGET_FLAG_FOW_VISIBLE+DOTA_UNIT_TARGET_FLAG_NO_INVIS,FIND_CLOSEST,false)
-
-	local unluckydog = us[RandomInt(1,table.maxn(us))]
-	local u = CreateUnitByName("invisible_unit", caster:GetAbsOrigin() ,false,nil,nil, caster.team_id) 
-	u:AddAbility('a108_missile')
-	u:FindAbilityByName('a108_missile'):SetLevel(1)
-
-	if unluckydog == nil then
-		return
-	end
-	
-	Timers:CreateTimer(0.1,function()
-		local newOrder = {
-	 		UnitIndex = u:entindex(), 
-	 		OrderType = DOTA_UNIT_ORDER_CAST_TARGET,
-	 		TargetIndex = unluckydog:entindex(), --Optional.  Only used when targeting units
-	 		AbilityIndex = u:FindAbilityByName("a108_missile"):entindex(), --Optional.  Only used when casting abilities
-	 		Position = nil, --Optional.  Only used when targeting the ground
-	 		Queue = 0 --Optional.  Used for queueing up abilities
-	 	}
-		ExecuteOrderFromTable(newOrder)
-		Timers:CreateTimer(5,function()
-			u:ForceKill(false)
-		end)
-	end)
-
+	--三连发
+	RandomMissileOne({ caster = keys.caster, ability = keys.ability })
 	Timers:CreateTimer(0.3,function()
-		if caster == nil or caster:IsNull() == true or caster:IsAlive() == false then
-			return
-		end
-		unluckydog = us[RandomInt(1,table.maxn(us))]
-		local v = CreateUnitByName("invisible_unit", caster:GetAbsOrigin() ,false,nil,nil, caster.team_id) 
-		v:AddAbility('a108_missile')
-		v:FindAbilityByName('a108_missile'):SetLevel(1)
-		
-		Timers:CreateTimer(0.1,function()
-			local newOrder = {
-		 		UnitIndex = v:entindex(), 
-		 		OrderType = DOTA_UNIT_ORDER_CAST_TARGET,
-		 		TargetIndex = unluckydog:entindex(), --Optional.  Only used when targeting units
-		 		AbilityIndex = v:FindAbilityByName("a108_missile"):entindex(), --Optional.  Only used when casting abilities
-		 		Position = nil, --Optional.  Only used when targeting the ground
-		 		Queue = 0 --Optional.  Used for queueing up abilities
-		 	}
-			ExecuteOrderFromTable(newOrder)
-			Timers:CreateTimer(5,function()
-				v:ForceKill(false)
-			end)
-		end)
-	end)
-	Timers:CreateTimer(0.5,function()
-		if caster == nil or caster:IsNull() == true or caster:IsAlive() == false then
-			return
-		end
-		unluckydog = us[RandomInt(1,table.maxn(us))]
-		local v = CreateUnitByName("invisible_unit", caster:GetAbsOrigin() ,false,nil,nil, caster.team_id) 
-		v:AddAbility('a108_missile')
-		v:FindAbilityByName('a108_missile'):SetLevel(1)
-		
-		Timers:CreateTimer(0.1,function()
-			local newOrder = {
-		 		UnitIndex = v:entindex(), 
-		 		OrderType = DOTA_UNIT_ORDER_CAST_TARGET,
-		 		TargetIndex = unluckydog:entindex(), --Optional.  Only used when targeting units
-		 		AbilityIndex = v:FindAbilityByName("a108_missile"):entindex(), --Optional.  Only used when casting abilities
-		 		Position = nil, --Optional.  Only used when targeting the ground
-		 		Queue = 0 --Optional.  Used for queueing up abilities
-		 	}
-			ExecuteOrderFromTable(newOrder)
-			Timers:CreateTimer(5,function()
-				v:ForceKill(false)
-			end)
+		RandomMissileOne({ caster = keys.caster, ability = keys.ability })
+		Timers:CreateTimer(0.3,function()
+			RandomMissileOne({ caster = keys.caster, ability = keys.ability })
 		end)
 	end)
 end
+function RandomMissileOne(keys)
+	--对一个随机的unluckydog发射导弹
+	local unlucky_dog = FindUnluckyDog(keys.caster)
+    ProjectileManager:CreateTrackingProjectile({
+        Target = unlucky_dog,
+        Source = keys.caster,
+        Ability = keys.ability,
+        EffectName = "particles/units/heroes/hero_tinker/tinker_missile.vpcf",
+        bDodgeable = false,
+        iMoveSpeed = 500,
+        bProvidesVision = false,
+        iSourceAttachment = DOTA_PROJECTILE_ATTACHMENT_ATTACK_1
+    })
+    EmitSoundOn("Hero_Tinker.Heat-Seeking_Missile_Dud",caster)
+end
+function RandomMissileDamage(keys)
+	prt(keys.target:GetUnitName()..'-->'..keys.damage_per_missile)
+	--导弹伤害
+    ApplyDamage({
+    	victim = keys.target,
+    	attacker = keys.caster,
+    	damage_type = DAMAGE_TYPE_MAGICAL,
+    	damage = keys.damage_per_missile
+    })
+    EmitSoundOn("Hero_Rattletrap.Rocket_Flare.Explode",keys.target)
+    play_particle("particles/units/heroes/hero_gyrocopter/gyro_guided_missile_explosion.vpcf",PATTACH_OVERHEAD_FOLLOW,keys.target,3)
+end
+
 --通用方法之添加技能
 function AddAbilityAndSetLevel(u,a,l)
 	if l == nil then
@@ -8854,15 +8819,16 @@ function ShowCombo(keys)
 		return a.score > b.score
 	end)
 
+	--将种族/职业现在各有几个了的BUFF显示在信使上
+	--combo_array是经过排序的，预期是按顺序从大到小显示，但是实际顺序会乱
+	--Reddit/NGA的拆包大佬能发帖分析下是咋回事吗？
 	for i = 1,table.maxn(combo_array) do
-		local mm = combo_array[i]
-		local modifier_name = 'modifier_show_combo_'..mm.m
-		-- Timers:CreateTimer(i/100.0,function()
-			ability:ApplyDataDrivenModifier(hero,hero,modifier_name,{})
-			if hero:FindModifierByName(modifier_name) ~= nil then
-				hero:FindModifierByName(modifier_name):SetStackCount(mm.s)
-			end
-		-- end)
+		local modifier_i = combo_array[i]
+		local modifier_name = 'modifier_show_combo_'..modifier_i.m
+		ability:ApplyDataDrivenModifier(hero,hero,modifier_name,{})
+		if hero:FindModifierByName(modifier_name) ~= nil then
+			hero:FindModifierByName(modifier_name):SetStackCount(modifier_i.s)
+		end
 	end
 end
 
