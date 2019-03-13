@@ -4178,7 +4178,7 @@
 			"01"
 			{
 				"var_type"	"FIELD_INTEGER"
-				"damage_per_missile"	"250 350 450"
+				"damage_per_missile"	"200 300 400"
 			}
 		}
 	}
@@ -13727,7 +13727,11 @@
 	"invisible_to_enemy"
 	{
 		"BaseClass"	"ability_datadriven"
-		"AbilityBehavior"	"DOTA_ABILITY_BEHAVIOR_PASSIVE"
+		"AbilityBehavior"	"DOTA_ABILITY_BEHAVIOR_HIDDEN | DOTA_ABILITY_BEHAVIOR_PASSIVE"
+		"precache"
+		{
+			"particle"	"particles/items2_fx/smoke_of_deceit_buff.vpcf"
+		}
 		"Modifiers"
 		{
 			"modifier_invisible_to_enemy"
@@ -13740,6 +13744,9 @@
 					"MODIFIER_STATE_INVISIBLE"	"MODIFIER_STATE_VALUE_ENABLED"
 				}
 				"Properties"	{}
+				"EffectName"	"particles/items2_fx/smoke_of_deceit_buff.vpcf"
+				"EffectAttachType"	"follow_overhead"
+				"IsHidden"	"1"
 			}
 		}
 	}
