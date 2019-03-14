@@ -494,6 +494,7 @@ function Precache( context )
 		"models/items/courier/krobeling_gold/krobeling_gold_flying.vmdl",
 		"effect/jin_dp/courier_krobeling_gold_ambient.vpcf",
 		"effect/nianshou/courier_nian_ambient.vpcf",
+		"soundevents/game_sounds.vsndevts",
 	} 
     print("Precache...")
 	local t=table.maxn(mxx)
@@ -5387,7 +5388,12 @@ function ChessAI(u)
 		end
 		RemoveAbilityAndModifier(u,'jiaoxie_wudi')
 
-		u.aitimer = Timers:CreateTimer(RandomFloat(0.5,2),function()
+		local start_delay = 0
+		if u:FindAbilityByName('is_assassin') ~= nil then
+			start_delay = 1
+		end
+
+		u.aitimer = Timers:CreateTimer(RandomFloat(0.2,1)+start_delay, function()
 			if u == nil or u:IsNull() == true or u:IsAlive() == false or u.alreadywon == true then
 				return
 			end
@@ -7333,6 +7339,9 @@ function AddMana(unit, mana)
 	end
 
 	local mana_result = math.floor(unit:GetMana()+mana+0.5)
+	if mana_result > 100 then
+		mana_result = 100
+	end
 	unit:SetMana(mana_result)
 	AMHC:CreateParticle("particles/generic_gameplay/rune_bounty_owner.vpcf",PATTACH_OVERHEAD_FOLLOW,false,unit,5)
 	if mana >= 10 then
