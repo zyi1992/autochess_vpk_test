@@ -3041,8 +3041,6 @@ function DAC:OnRequestBuyChess(keys)
 		return
 	end
 	if h == nil or h.curr_chess_table == nil or h.curr_chess_table[buy_index + 1] == nil then
-		print('request buy #'..(buy_index + 1)..' failed')
-		DeepPrintTable(h.curr_chess_table)
 		return
 	end
 	local chess = h.curr_chess_table[buy_index + 1]
@@ -5390,7 +5388,7 @@ function ChessAI(u)
 
 		local start_delay = 0
 		if u:FindAbilityByName('is_assassin') ~= nil then
-			start_delay = 1
+			start_delay = 2
 		end
 
 		u.aitimer = Timers:CreateTimer(RandomFloat(0.2,1)+start_delay, function()
@@ -8252,7 +8250,6 @@ function DAC:OnCatchCrab(keys)
 			send_url = send_url..'&'..i..'='..v
 		end
 		send_url = send_url..GetSendKey()
-		print(send_url)
 		Timers:CreateTimer(RandomFloat(0,1),function()
 			SendHTTP(send_url,function(t)
 				CustomGameEventManager:Send_ServerToPlayer(PlayerResource:GetPlayer(player_id),'send_http_cb',{
@@ -8914,7 +8911,7 @@ function SlarkJump(keys)
 			local damageTable = {
 		    	victim=target,
 		    	attacker=caster,
-		    	damage_type=DAMAGE_TYPE_PHYSICAL,
+		    	damage_type=DAMAGE_TYPE_PURE,
 		    	damage=damage
 		    }
 		    ApplyDamage(damageTable)
