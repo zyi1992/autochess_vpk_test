@@ -1335,7 +1335,7 @@
                 "DOTA_Tooltip_modifier_show_combo_is_goblin_Description"        "自分がこの種族の異なる駒を（N）個配置している場合にだけ発動する。<br> (3) ゴブリン: ランダムに選ばれた一人の味方にアーマー +15とHP回復力+10の特効をかける。 <br> (6) ゴブリン: 味方全員にアーマー +15とHP回復力+10の特効をかける。."
                 "DOTA_Tooltip_modifier_show_combo_is_naga"        "ナーガ: スケイルアーマー"
                 "DOTA_Tooltip_modifier_show_combo_is_naga_Description"        "自分がこの種族の異なる駒を（N）個配置している場合にだけ発動する。 <br> (2) ナーガ: 味方全員の魔法耐性が30%%上がります。<br> (4) ナーガ: 味方全員の魔法耐性が更に30%%上がります。"
-                "DOTA_Tooltip_modifier_show_combo_is_beast"        "Beast: Power of the Wild"
+                "DOTA_Tooltip_modifier_show_combo_is_beast"        "野獣: 野性の力"
                 "DOTA_Tooltip_modifier_show_combo_is_beast_Description"        "野性の力</font><br> 自分がこの種族の異なる駒を（N）個配置している場合にだけ発動する。<br> (2) 野獣: 味方全員（召喚生物も含めて）の攻撃力+10％。<br> (4) 野獣: 味方全員（召喚生物も含めて）の攻撃力+15％。<br> (6) 野獣: 味方全員（召喚生物も含めて）の攻撃力+20％。"
                 "DOTA_Tooltip_modifier_show_combo_is_demon"        "悪魔: Fel Power"
                 "DOTA_Tooltip_modifier_show_combo_is_demon_Description"        "自分が一種だけの悪魔を配置している時のみ発動する。<br> 50%%ピュアダメージ追加。"
@@ -1378,6 +1378,19 @@
                 "e457"        "Ethereal Flame|Purple"
                 "e458"        "Ethereal Flame|White"
                 "e459"        "Ethereal Flame|Pink"
+                "DOTA_Tooltip_ability_is_satyr"        "サチュロス"
+                "DOTA_Tooltip_ability_is_satyr_Lore"        "<font color=\"#bbbbbb\">種族スキル: 隠蔽</font>\n 待ち席にサチュロスがある場合、待ち席にある駒を他のプレーヤーから隠す。\n\n チェス盤にサチュロスがある場合、戦闘開始寸前までチェス盤に配置している駒を他のプレーヤーから隠す。"
+                "DOTA_Tooltip_modifier_show_combo_is_satyr"        "サチュロス: 隠蔽"
+                "DOTA_Tooltip_modifier_show_combo_is_satyr_Description"        "待ち席にサチュロスがある場合、待ち席にある駒を他のプレーヤーから隠す。<br> チェス盤にサチュロスがある場合、戦闘開始寸前までチェス盤に配置している駒を他のプレーヤーから隠す。"
+                "DOTA_Tooltip_ability_is_hunter_Lore"        "<font color=\"#bbbbbb\">クラススキル: エイムショット</font>\n 自分がこの種族の異なる駒を（N）個配置している場合にだけ発動する。 \n\n (3) ハンター: 味方ハンターの攻撃力+25、攻撃が25%の確率で回避不可となる。 <br> (6) ハンター: 味方ハンターの攻撃力が更に+40、攻撃が40%の確率で回避不可となる。"
+                "DOTA_Tooltip_modifier_show_combo_is_hunter"        "クラススキル: エイムショット"
+                "DOTA_Tooltip_modifier_show_combo_is_hunter_Description"        "自分がこの種族の異なる駒を（N）個配置している場合にだけ発動する。<br>(3)  ハンター: 味方ハンターの攻撃力+25、攻撃が25%の確率で回避不可となる。<br>(6) ハンター: 味方ハンターの攻撃力+25、攻撃が25%の確率で回避不可となる。 <br> (6) ハンター: 味方ハンターの攻撃力が更に+40、攻撃が40%の確率で回避不可となる。"
+                "DOTA_Tooltip_modifier_invisible_to_enemy"        "隠蔽"
+                "DOTA_Tooltip_modifier_invisible_to_enemy_Description"        "サチュロスがこの駒を他のプレーヤーから隠している。"
+                "DOTA_Tooltip_modifier_is_hunter_buff"        "エイムショット"
+                "DOTA_Tooltip_modifier_is_hunter_buff_Description"        "攻撃力+25、攻撃が25%の確率で回避不可となる。"
+                "DOTA_Tooltip_modifier_is_hunter_buff_plus"        "エイムショット"
+                "DOTA_Tooltip_modifier_is_hunter_buff_plus_Description"        "攻撃力が+40、攻撃が40%の確率で回避不可となる。"
 
 
         }

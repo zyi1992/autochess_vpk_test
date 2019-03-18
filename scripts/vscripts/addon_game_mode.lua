@@ -3101,7 +3101,7 @@ function DAC:OnRequestBuyChess(keys)
 			AddAbilityAndSetLevel(x,a,0)
 		end
 	end
-	FindRikiAndToggle(team_id)
+	FindRikiAndToggle(x)
 end
 
 
@@ -3214,7 +3214,7 @@ function RecallChess(keys)
 	GameRules:GetGameModeEntity().population[team_id] = GameRules:GetGameModeEntity().population[team_id] - 1
 
 	--隐藏手牌
-	FindRikiAndToggle(team_id)
+	FindRikiAndToggle(picked_chess)
 	--同步ui人口
 	CustomGameEventManager:Send_ServerToTeam(team_id,"population",{
 		key = GetClientKey(team_id),
@@ -3428,7 +3428,7 @@ function DAC:OnPickChessPosition(keys)
 		GameRules:GetGameModeEntity().population[team_id] = GameRules:GetGameModeEntity().population[team_id] - 1
 
 		--隐藏手牌
-		FindRikiAndToggle(team_id)
+		FindRikiAndToggle(picked_chess)
 		--同步ui人口
 		CustomGameEventManager:Send_ServerToTeam(team_id,"population",{
 			key = GetClientKey(team_id),
@@ -3646,7 +3646,7 @@ function RemoveChess(keys)
 	if target.y_x ~= nil then
 		GameRules:GetGameModeEntity().unit[team_id][target.y_x] = nil
 	end
-	FindRikiAndToggle(team_id)
+	FindRikiAndToggle(target)
 	CancelPickChess(caster)
 
 	AddAChessToChessPool(target:GetUnitName())
@@ -3818,6 +3818,8 @@ function CombineChess(u0,u1,u2)
 		uu.y = y
 		uu.x = x
 		uu.team_id = team_id
+
+		FindRikiAndToggle(uu)
 
 		uu:SetForwardVector(Vector(0,1,0))
 		--添加装备
@@ -5387,11 +5389,11 @@ function ChessAI(u)
 		RemoveAbilityAndModifier(u,'jiaoxie_wudi')
 
 		local start_delay = 0
-		if u:FindAbilityByName('is_assassin') ~= nil then
-			start_delay = 2
+		if u:FindAbilityByName('is_assassin') ~= nil and GameRules:GetGameModeEntity().chess_ability_list[u:GetUnitName()] ~= nil then
+			start_delay = 1
 		end
 
-		u.aitimer = Timers:CreateTimer(RandomFloat(0.2,1)+start_delay, function()
+		u.aitimer = Timers:CreateTimer(RandomFloat(0.5,2)+start_delay, function()
 			if u == nil or u:IsNull() == true or u:IsAlive() == false or u.alreadywon == true then
 				return
 			end
@@ -7691,8 +7693,14 @@ function TbMohua(keys)
 		local hp2 = unluckydog:GetHealth()
 		local hp_max2 = unluckydog:GetMaxHealth()
 		local per2 = 1.0*hp2/hp_max2
-		caster:SetHealth(caster:GetMaxHealth()*per2)
-		unluckydog:SetHealth(unluckydog:GetMaxHealth()*per1)
+
+		if caster ~= nil and caster:IsNull() ~= true and caster:IsAlive() == true then
+			caster:SetHealth(caster:GetMaxHealth()*per2)
+		end
+		if caster ~= nil and caster:IsNull() ~= true and caster:IsAlive() == true then
+			unluckydog:SetHealth(unluckydog:GetMaxHealth()*per1)
+		end
+		
 		--（3）播放特效音效 
 		local pp = ParticleManager:CreateParticle("particles/units/heroes/hero_terrorblade/terrorblade_sunder.vpcf", PATTACH_ABSORIGIN_FOLLOW, caster)
 		ParticleManager:SetParticleControl(pp,0,caster:GetAbsOrigin())
@@ -8696,7 +8704,12 @@ function SendHTTPPost(url,game_data)
     end)
 end
 
-function FindRikiAndToggle(team,thischess)
+function FindRikiAndToggle(chess)
+	if chess == nil or chess:GetTeam() == nil then
+		return
+	end
+	local team = chess:GetTeam()
+
 	local hand_riki = false
 	if TeamId2Hero(team).hand_entities ~= nil then
 		for _,ent in pairs(TeamId2Hero(team).hand_entities) do
@@ -8712,6 +8725,7 @@ function FindRikiAndToggle(team,thischess)
 		ShowBench(team)
 		RemoveAbilityAndModifier(thischess,'invisible_to_enemy')
 	end
+
 	local prepare_riki = false
 	if GameRules:GetGameModeEntity().to_be_destory_list[team] ~= nil then
 		for _,ent in pairs(GameRules:GetGameModeEntity().to_be_destory_list[team]) do
@@ -8720,7 +8734,7 @@ function FindRikiAndToggle(team,thischess)
 			end
 		end
 	end
-	if prepare_riki == true then
+	if prepare_riki == true and GameRules:GetGameModeEntity().game_status == 1 then
 		HidePrepare(team)
 		AddAbilityAndSetLevel(thischess,"invisible_to_enemy")
 	else

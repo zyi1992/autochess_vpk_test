@@ -8392,7 +8392,7 @@
 				"IsDebuff"	"0"
 				"Properties"
 				{
-					"MODIFIER_PROPERTY_BASEATTACK_BONUSDAMAGE"	"25"
+					"MODIFIER_PROPERTY_BASEATTACK_BONUSDAMAGE"	"30"
 				}
 				"IsBuff"	"1"
 				"States"	{}
@@ -8411,7 +8411,7 @@
 								"ModifierName"	"modifier_is_hunter_buff_jingzhun"
 							}
 						}
-						"Chance"	"25"
+						"Chance"	"30"
 						"PseudoRandom"	"DOTA_PSEUDO_RANDOM_PHANTOMASSASSIN_CRIT"
 					}
 				}
@@ -9970,7 +9970,7 @@
 		"MaxLevel"	"3"
 		"AbilityCastPoint"	"0"
 		"AbilityCastAnimation"	"ACT_DOTA_RUN"
-		"AbilityCooldown"	"12 10 8"
+		"AbilityCooldown"	"10 8 6"
 		"AbilityManaCost"	"0"
 		"AbilityCastRange"	"9999"
 		"AbilityCastRange"	"9999"
