@@ -409,7 +409,7 @@
 			"01"
 			{
 				"var_type"	"FIELD_INTEGER"
-				"heal"	"200 300 400"
+				"heal"	"250 350 450"
 				"LinkedSpecialBonus"	"special_bonus_unique_omniknight_1"
 			}
 			"02"
@@ -512,7 +512,7 @@
 	{
 		"MaxLevel"	"3"
 		"AbilityCastPoint"	"0.5"
-		"AbilityCooldown"	"10"
+		"AbilityCooldown"	"15 12 9"
 		"AbilityManaCost"	"100"
 		"AbilityCastRange"	"9999"
 		"AbilitySpecial"
@@ -550,7 +550,7 @@
 	{
 		"MaxLevel"	"3"
 		"AbilityCastPoint"	"0.5"
-		"AbilityCooldown"	"10"
+		"AbilityCooldown"	"15 12 9"
 		"AbilityManaCost"	"100"
 		"AbilityCastRange"	"9999"
 		"AbilitySpecial"
@@ -9890,6 +9890,16 @@
 		"MaxLevel"	"1"
 	}
 
+	"is_god"
+	{
+		"BaseClass"	"ability_datadriven"
+		"AbilityTextureName"	"zuus_static_field_alt1"
+		"AbilityBehavior"	"DOTA_ABILITY_BEHAVIOR_PASSIVE"
+		"AbilityUnitTargetType"	"DOTA_UNIT_TARGET_HERO | DOTA_UNIT_TARGET_BASIC"
+		"AbilityUnitTargetTeam"	"DOTA_UNIT_TARGET_TEAM_FRIENDLY"
+		"MaxLevel"	"1"
+	}
+
 	"boss_bianyang"
 	{
 		"BaseClass"	"ability_datadriven"
@@ -13963,7 +13973,7 @@
 		"MaxLevel"	"3"
 		"AbilityCastPoint"	"0.3"
 		"AbilityCastAnimation"	"ACT_DOTA_CAST_ABILITY_2"
-		"AbilityCooldown"	"10 8 6"
+		"AbilityCooldown"	"8 6 4"
 		"AbilityManaCost"	"100"
 		"AbilityCastRange"	"99999"
 		"precache"
@@ -14475,4 +14485,5 @@
 			}
 		}
 	}
+
 }
