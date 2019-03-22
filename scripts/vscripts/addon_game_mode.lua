@@ -650,6 +650,7 @@ function DAC:InitGameMode()
     CustomGameEventManager:RegisterListener("change_onduty_hero", Dynamic_Wrap(DAC, "OnChangeOndutyHero") )
     CustomGameEventManager:RegisterListener("preview_effect", Dynamic_Wrap(DAC, "OnPreviewEffect") )
     CustomGameEventManager:RegisterListener("suggest_liuju", Dynamic_Wrap(DAC, "OnSuggestLiuju") )
+    CustomGameEventManager:RegisterListener("set_auto_combine", Dynamic_Wrap(DAC, "OnSetAutoCombine") )
 
     GameRules:GetGameModeEntity().battle_round = 1
     GameRules:GetGameModeEntity().steamidlist = ''
@@ -2150,6 +2151,7 @@ function DAC:OnPlayerPickHero(keys)
 
 		hero.team = hero:GetTeam()
 		hero.team_id = hero:GetTeam()
+		hero.is_auto_combine = 1
 
 		--设置玩家颜色
 		-- PlayerResource:SetCustomPlayerColor(hero:GetPlayerID(),GameRules:GetGameModeEntity().team_color[hero:GetTeam()].r,GameRules:GetGameModeEntity().team_color[hero:GetTeam()].g,GameRules:GetGameModeEntity().team_color[hero:GetTeam()].b)
@@ -2919,42 +2921,51 @@ function DAC:OnEntityKilled(keys)
 		attacker.killing_spree_count = 1
 	end
 
-	-- if attacker.killing_spree_count == 3 then
-	-- 	--三杀
-	-- 	play_particle("effect/3sha/vr_killbanner_triplekill.vpcf",PATTACH_OVERHEAD_FOLLOW,attacker,5)
-	-- 	EmitSoundOn("announcer_killing_spree_announcer_kill_triple_01",attacker)
+	if attacker.killing_spree_count == 3 then
+		--三杀
+		play_particle("effect/3sha/vr_killbanner_triplekill.vpcf",PATTACH_OVERHEAD_FOLLOW,attacker,5)
+		EmitSoundOn("announcer_killing_spree_announcer_kill_triple_01",attacker)
 
-	-- 	if attacker.team_id == 4 then
-	-- 		if attacker.from_team_id ~= nil then
-	-- 			ShowCombat({
-	-- 				t = 'killing_spree_3_creep',
-	-- 				player = GameRules:GetGameModeEntity().team2playerid[attacker.from_team_id],
-	-- 				text = attacker:GetUnitName(),
-	-- 				hero = 'npc_dota_hero_wisp',
-	-- 			})
-	-- 		else
-	-- 			ShowCombat({
-	-- 				t = 'killing_spree_3_creep',
-	-- 				player = GameRules:GetGameModeEntity().team2playerid[4],
-	-- 				text = attacker:GetUnitName(),
-	-- 				hero = 'npc_dota_hero_wisp',
-	-- 			})
-	-- 		end
-	-- 	else
-	-- 		ShowCombat({
-	-- 			t = 'killing_spree_3',
-	-- 			player = GameRules:GetGameModeEntity().team2playerid[attacker.from_team_id or attacker.team_id],
-	-- 			text = attacker:GetUnitName(),
-	-- 			hero = 'npc_dota_hero_wisp',
-	-- 		})
-	-- 	end
-	-- end
+		-- if attacker.team_id == 4 then
+		-- 	if attacker.from_team_id ~= nil then
+		-- 		ShowCombat({
+		-- 			t = 'killing_spree_3_creep',
+		-- 			player = GameRules:GetGameModeEntity().team2playerid[attacker.from_team_id],
+		-- 			text = attacker:GetUnitName(),
+		-- 			hero = 'npc_dota_hero_wisp',
+		-- 		})
+		-- 	else
+		-- 		ShowCombat({
+		-- 			t = 'killing_spree_3_creep',
+		-- 			player = GameRules:GetGameModeEntity().team2playerid[4],
+		-- 			text = attacker:GetUnitName(),
+		-- 			hero = 'npc_dota_hero_wisp',
+		-- 		})
+		-- 	end
+		-- else
+		-- 	ShowCombat({
+		-- 		t = 'killing_spree_3',
+		-- 		player = GameRules:GetGameModeEntity().team2playerid[attacker.from_team_id or attacker.team_id],
+		-- 		text = attacker:GetUnitName(),
+		-- 		hero = 'npc_dota_hero_wisp',
+		-- 	})
+		-- end
+	end
 	if attacker.killing_spree_count == 5 then
 		--暴走
 		play_particle("particles/vr_env/killbanners/vr_killbanner_rampage.vpcf",PATTACH_OVERHEAD_FOLLOW,attacker,5)
 		EmitSoundOn("announcer_killing_spree_announcer_kill_rampage_01",attacker)
 
-		attacker:SetModelScale(attacker:GetModelScale()*1.5)
+		local scale = attacker:GetModelScale() + 0.3
+		-- prt(scale)
+
+		-- attacker:SetModelScale(scale)
+
+		ChangeModelScale({
+			caster = attacker,
+			x = scale 
+		})
+
 		attacker.is_baozou = true
 
 		if attacker.team_id == 4 then
@@ -2982,6 +2993,40 @@ function DAC:OnEntityKilled(keys)
 			})
 		end
 	end 
+
+	if attacker.killing_spree_count > 5 then
+		--暴走
+		play_particle("particles/vr_env/killbanners/vr_killbanner_rampage.vpcf",PATTACH_OVERHEAD_FOLLOW,attacker,5)
+		EmitSoundOn("announcer_killing_spree_announcer_kill_rampage_01",attacker)
+
+		-- attacker:SetModelScale(attacker:GetModelScale()*1.5)
+		-- attacker.is_baozou = true
+
+		-- if attacker.team_id == 4 then
+		-- 	if attacker.from_team_id ~= nil then
+		-- 		ShowCombat({
+		-- 			t = 'killing_spree_5_creep',
+		-- 			player = GameRules:GetGameModeEntity().team2playerid[attacker.from_team_id],
+		-- 			text = attacker:GetUnitName(),
+		-- 			hero = 'npc_dota_hero_wisp',
+		-- 		})
+		-- 	else
+		-- 		ShowCombat({
+		-- 			t = 'killing_spree_5_creep',
+		-- 			player = GameRules:GetGameModeEntity().team2playerid[4],
+		-- 			text = attacker:GetUnitName(),
+		-- 			hero = 'npc_dota_hero_wisp',
+		-- 		})
+		-- 	end
+		-- else
+		-- 	ShowCombat({
+		-- 		t = 'killing_spree_5',
+		-- 		player = GameRules:GetGameModeEntity().team2playerid[attacker.from_team_id or attacker.team_id],
+		-- 		text = attacker:GetUnitName(),
+		-- 		hero = 'npc_dota_hero_wisp',
+		-- 	})
+		-- end
+	end
 end
 --游戏循环1.2——抽卡
 function PrepareARound(teamid)
@@ -3172,9 +3217,13 @@ function DAC:OnRequestBuyChess(keys)
 		})
 		return
 	end
+
+	--判断手牌里是否有两个一样的，有的话直接合成
+	local have_exist_count,chess1,chess2,chess3 = Find2SameChessInHand(h,chess)
+
 	--寻找手牌空位
 	local index = FindEmptyHandSlot(team_id)
-	if index == nil then
+	if index == nil and have_exist_count < 2 then
 		CustomGameEventManager:Send_ServerToTeam(team_id,"mima",{
 			key = GetClientKey(team_id),
 			text = "text_mima_hand_full"
@@ -3192,7 +3241,62 @@ function DAC:OnRequestBuyChess(keys)
 	CostMana(h,price)
 	GameRules:GetGameModeEntity().stat_info[h.steam_id]['gold'] = GameRules:GetGameModeEntity().stat_info[h.steam_id]['gold'] + price
 
-	--生成购买的棋子
+	--直接合成一个2星的 或者 添加一个1星的
+	local have_exist_count,chess1,chess2 = Find2SameChessInHand(h,chess)
+	if have_exist_count >= 2 and chess1 ~= nil and chess2 ~= nil and h.is_auto_combine == 1 then
+		local items_table = GetAllItemsInUnits({
+			[1] = chess1,
+			[2] = chess2,
+		})
+		RemoveChess({ caster = h, target = chess1 })
+		RemoveChess({ caster = h, target = chess2 })
+		chess = chess..'1'
+		
+		Timers:CreateTimer(0.3,function()
+			local uu = CreateChessInHand(h,chess,"particles/units/unit_greevil/loot_greevil_death.vpcf")
+			GiveItems2Unit(items_table,uu)
+			--添加星星特效
+			play_particle('effect/arrow/star2.vpcf',PATTACH_OVERHEAD_FOLLOW,uu,5)
+
+			Timers:CreateTimer(0.5,function()
+				--二次合成？
+				local have_exist_count,chess1,chess2,chess3 = Find2SameChessInHand(h,chess)
+				if have_exist_count >= 3 and chess1 ~= nil and chess2 ~= nil and chess3 ~= nil then
+					local items_table = GetAllItemsInUnits({
+						[1] = chess1,
+						[2] = chess2,
+						[3] = chess3,
+					})
+					RemoveChess({ caster = h, target = chess1 })
+					RemoveChess({ caster = h, target = chess2 })
+					RemoveChess({ caster = h, target = chess3 })
+					chess = chess..'1'
+					Timers:CreateTimer(0.3,function()
+						local uuu = CreateChessInHand(h,chess,"particles/units/unit_greevil/loot_greevil_death.vpcf")
+						GiveItems2Unit(items_table,uuu)
+						--添加星星特效
+						play_particle('effect/arrow/star3.vpcf',PATTACH_OVERHEAD_FOLLOW,uu,5)
+					end)
+				end
+			end)
+		end)
+	else
+		CreateChessInHand(h,chess)
+	end
+end
+
+--在队伍的等待区域创建一个指定的棋子
+function CreateChessInHand(h,chess,particle)
+	local team_id = h.team_id
+	local p = particle or "particles/econ/items/antimage/antimage_ti7/antimage_blink_start_ti7_ribbon_bright.vpcf"
+	local index = FindEmptyHandSlot(team_id)
+	if index == nil then
+		CustomGameEventManager:Send_ServerToTeam(team_id,"mima",{
+			key = GetClientKey(team_id),
+			text = "text_mima_hand_full"
+		})
+		return
+	end
 	local x = CreateUnitByName(chess,HandIndex2Vector(team_id,index),true,nil,nil,team_id)
 	MakeTiny(x)
 	PlayChessDialogue(x,'spawn')
@@ -3211,7 +3315,7 @@ function DAC:OnRequestBuyChess(keys)
 	AddAbilityAndSetLevel(x,'root_self')
 	AddAbilityAndSetLevel(x,'jiaoxie_wudi')
 
-	play_particle("particles/econ/items/antimage/antimage_ti7/antimage_blink_start_ti7_ribbon_bright.vpcf",PATTACH_ABSORIGIN_FOLLOW,x,5)
+	play_particle(p,PATTACH_ABSORIGIN_FOLLOW,x,5)
 
 	--添加战斗技能
 	if GameRules:GetGameModeEntity().chess_ability_list[x:GetUnitName()] ~= nil then
@@ -3221,6 +3325,7 @@ function DAC:OnRequestBuyChess(keys)
 		end
 	end
 	FindRikiAndToggle(x)
+	return x
 end
 
 
@@ -3272,8 +3377,6 @@ function RecallChess(keys)
 	local team_id = picked_chess.team_id
 	local origin_x = picked_chess.x
 	local origin_y = picked_chess.y
-
-	--TODO: 判断此时是什么阶段，准备阶段才允许撤回
 	
 	if picked_chess.is_removing == true then
 		return
@@ -3875,18 +3978,22 @@ function CombineChess(u0,u1,u2)
 	local advance_unit_name = chess_name..'1'
 	if advance_unit_name ~= nil then
 		--收集低级棋子的物品
-		local items_table = {}
-		for slot=0,8 do
-			if chess0:GetItemInSlot(slot)~= nil then
-				table.insert(items_table,chess0:GetItemInSlot(slot):GetAbilityName())
-			end
-			if chess1:GetItemInSlot(slot)~= nil then
-				table.insert(items_table,chess1:GetItemInSlot(slot):GetAbilityName())
-			end
-			if chess2 ~= nil and chess2:GetItemInSlot(slot)~= nil then
-				table.insert(items_table,chess2:GetItemInSlot(slot):GetAbilityName())
-			end
-		end
+		local items_table = GetAllItemsInUnits({
+			[1] = chess0,
+			[2] = chess1,
+			[3] = chess2,
+		})
+		-- for slot=0,8 do
+		-- 	if chess0:GetItemInSlot(slot)~= nil then
+		-- 		table.insert(items_table,chess0:GetItemInSlot(slot):GetAbilityName())
+		-- 	end
+		-- 	if chess1:GetItemInSlot(slot)~= nil then
+		-- 		table.insert(items_table,chess1:GetItemInSlot(slot):GetAbilityName())
+		-- 	end
+		-- 	if chess2 ~= nil and chess2:GetItemInSlot(slot)~= nil then
+		-- 		table.insert(items_table,chess2:GetItemInSlot(slot):GetAbilityName())
+		-- 	end
+		-- end
 
 		--移除三个低级棋子
 		GameRules:GetGameModeEntity().mychess[team_id][u0_key]= nil
@@ -3942,9 +4049,8 @@ function CombineChess(u0,u1,u2)
 
 		uu:SetForwardVector(Vector(0,1,0))
 		--添加装备
-		for l,vl in pairs(items_table) do
-			uu:AddItemByName(vl)
-		end
+		GiveItems2Unit(items_table,uu)
+
 		AddAbilityAndSetLevel(uu,'root_self')
 		AddAbilityAndSetLevel(uu,'jiaoxie_wudi')
 		--合成特效
@@ -6865,26 +6971,7 @@ function DAC:OnPlayerChat(keys)
 			elseif i == 3 then
 				this_chess = GameRules:GetGameModeEntity().next_crab..'11'
 			end
-			x = CreateUnitByName(this_chess,HandIndex2Vector(hero:GetTeam(),i),true,nil,nil,hero:GetTeam())
-			MakeTiny(x)
-			PlayChessDialogue(x,'spawn')
-
-			GameRules:GetGameModeEntity().hand[hero:GetTeam()][i] = 1
-			if hero.hand_entities == nil then
-				hero.hand_entities = {}
-			end
-
-			hero.hand_entities[i] = x
-
-			x:SetForwardVector(Vector(0,1,0))
-			x.hand_index = i
-			x.team_id = hero:GetTeam()
-			x.owner_player_id = GameRules:GetGameModeEntity().team2playerid[hero:GetTeam()]
-			
-			AddAbilityAndSetLevel(x,'root_self')
-			AddAbilityAndSetLevel(x,'jiaoxie_wudi')
-
-			play_particle("particles/econ/items/antimage/antimage_ti7/antimage_blink_start_ti7_ribbon_bright.vpcf",PATTACH_ABSORIGIN_FOLLOW,x,5)
+			CreateChessInHand(hero,this_chess)
 		end
 		GameRules:GetGameModeEntity().next_crab = nil
 	end
@@ -9262,4 +9349,67 @@ end
 -- 	prt('闪避！')
 -- end
 
+--从某个玩家的手牌中寻找两个chess棋子，返回：有几个，第一个，第二个，第三个
+function Find2SameChessInHand(caster,chess)
+	local count = 0
+	local chess1 = nil
+	local chess2 = nil
+	local chess3 = nil
+	if caster ~= nil and caster.hand_entities ~= nil then
+		for _,v in pairs(caster.hand_entities) do
+			if IsUnitExist(v) == true and v:GetUnitName() == chess then
+				count = count + 1
+				if count == 1 then
+					chess1 = v
+				end
+				if count == 2 then
+					chess2 = v
+				end
+				if count == 3 then
+					chess3 = v
+				end
+			end
+		end
+		return count,chess1,chess2,chess3
+	else
+		return 0,nil,nil,nil
+	end
+end
 
+function IsUnitExist(u)
+	if u ~= nil and u:IsNull() == false and u:IsAlive() == true and u.is_removing ~= true then
+		return true
+	else
+		return false
+	end
+end
+
+--收集多个棋子的装备
+function GetAllItemsInUnits(units)
+	--收集棋子的物品
+	local items_table = {}
+	for _,v in pairs(units) do
+		if v ~= nil then
+			for slot=0,8 do
+				if v:GetItemInSlot(slot)~= nil then
+					table.insert(items_table,v:GetItemInSlot(slot):GetAbilityName())
+				end
+			end
+		end
+	end
+	return items_table
+end
+--把装备给棋子
+function GiveItems2Unit(items,unit)
+	for _,v in pairs(items) do
+		unit:AddItemByName(v)
+	end
+end
+
+function DAC:OnSetAutoCombine(keys)
+	local player_id = keys.PlayerID
+	local hero = PlayerId2Hero(player_id)
+	if hero ~= nil then
+		hero.is_auto_combine = keys.is_auto_combine
+	end
+end

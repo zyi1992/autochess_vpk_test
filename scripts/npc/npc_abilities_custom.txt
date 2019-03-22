@@ -512,7 +512,7 @@
 	{
 		"MaxLevel"	"3"
 		"AbilityCastPoint"	"0.5"
-		"AbilityCooldown"	"15 12 9"
+		"AbilityCooldown"	"10"
 		"AbilityManaCost"	"100"
 		"AbilityCastRange"	"9999"
 		"AbilitySpecial"
@@ -520,7 +520,7 @@
 			"01"
 			{
 				"var_type"	"FIELD_FLOAT"
-				"duration"	"20"
+				"duration"	"10 15 20"
 			}
 			"02"
 			{
@@ -9456,7 +9456,7 @@
 					}
 					"Random"
 					{
-						"Chance"	"10"
+						"Chance"	"15"
 						"PseudoRandom"	"DOTA_PSEUDO_RANDOM_PHANTOMASSASSIN_CRIT"
 						"OnSuccess"
 						{
@@ -9624,7 +9624,7 @@
 					}
 					"Random"
 					{
-						"Chance"	"20"
+						"Chance"	"15"
 						"PseudoRandom"	"DOTA_PSEUDO_RANDOM_PHANTOMASSASSIN_CRIT"
 						"OnSuccess"
 						{
@@ -11398,7 +11398,7 @@
 			"04"
 			{
 				"var_type"	"FIELD_FLOAT"
-				"stone_duration"	"2 3 4"
+				"stone_duration"	"2 2.5 3"
 			}
 			"05"
 			{
@@ -14485,5 +14485,4 @@
 			}
 		}
 	}
-
 }
