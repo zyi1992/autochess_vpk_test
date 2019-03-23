@@ -11464,10 +11464,10 @@
 	"alchemist_acid_spray"
 	{
 		"MaxLevel"	"3"
-		"AbilityCastPoint"	"0.3"
+		"AbilityCastPoint"	"0"
 		"AbilityCastAnimation"	"ACT_DOTA_CAST_ABILITY_1"
-		"AbilityCooldown"	"10"
-		"AbilityManaCost"	"100"
+		"AbilityCooldown"	"0"
+		"AbilityManaCost"	"0"
 		"AbilityCastRange"	"9999"
 		"AbilitySpecial"
 		{
@@ -11479,17 +11479,17 @@
 			"02"
 			{
 				"var_type"	"FIELD_FLOAT"
-				"duration"	"10"
+				"duration"	"15"
 			}
 			"03"
 			{
 				"var_type"	"FIELD_INTEGER"
-				"damage"	"15 25 35"
+				"damage"	"0"
 			}
 			"04"
 			{
 				"var_type"	"FIELD_INTEGER"
-				"armor_reduction"	"5 8 11"
+				"armor_reduction"	"4 7 10"
 				"LinkedSpecialBonus"	"special_bonus_unique_alchemist_5"
 			}
 			"05"
@@ -14095,7 +14095,7 @@
 			"01"
 			{
 				"var_type"	"FIELD_FLOAT"
-				"duration"	"60"
+				"duration"	"15"
 			}
 			"02"
 			{
@@ -14128,6 +14128,16 @@
 			{
 				"var_type"	"FIELD_INTEGER"
 				"bonus_movespeed"	"0 0 0"
+			}
+			"08"
+			{
+				"var_type"	"FIELD_INTEGER"
+				"armor_reduce"	"4 7 10"
+			}
+			"09"
+			{
+				"var_type"	"FIELD_INTEGER"
+				"acid_duration"	"15"
 			}
 		}
 		"AbilitySound"	"Hero_Alchemist.ChemicalRage.Cast"

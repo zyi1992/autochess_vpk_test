@@ -639,6 +639,7 @@ function DAC:InitGameMode()
     ListenToGameEvent("entity_killed", Dynamic_Wrap(DAC, "OnEntityKilled"), self)
     ListenToGameEvent("dota_player_gained_level", Dynamic_Wrap(DAC,"OnPlayerGainedLevel"), self)
 
+
     CustomGameEventManager:RegisterListener("request_buy_chess", Dynamic_Wrap(DAC, "OnRequestBuyChess") )
     CustomGameEventManager:RegisterListener("pick_chess_position", Dynamic_Wrap(DAC, "OnPickChessPosition") )
     CustomGameEventManager:RegisterListener("cancel_pick_chess_position", Dynamic_Wrap(DAC, "OnCancelPickChessPosition") )
@@ -1893,7 +1894,6 @@ function InitHeros()
 			end
 
 			if t.ranking_info ~= nil then
-				-- print('11111')
 
 				local tb = {}
 				local count = 0
@@ -2151,7 +2151,7 @@ function DAC:OnPlayerPickHero(keys)
 
 		hero.team = hero:GetTeam()
 		hero.team_id = hero:GetTeam()
-		hero.is_auto_combine = 1
+		hero.is_auto_combine = 0
 
 		--设置玩家颜色
 		-- PlayerResource:SetCustomPlayerColor(hero:GetPlayerID(),GameRules:GetGameModeEntity().team_color[hero:GetTeam()].r,GameRules:GetGameModeEntity().team_color[hero:GetTeam()].g,GameRules:GetGameModeEntity().team_color[hero:GetTeam()].b)
@@ -3223,7 +3223,14 @@ function DAC:OnRequestBuyChess(keys)
 
 	--寻找手牌空位
 	local index = FindEmptyHandSlot(team_id)
-	if index == nil and have_exist_count < 2 then
+	if index == nil and have_exist_count < 2 and h.is_auto_combine == 1 then
+		CustomGameEventManager:Send_ServerToTeam(team_id,"mima",{
+			key = GetClientKey(team_id),
+			text = "text_mima_hand_full"
+		})
+		return
+	end
+	if index == nil and h.is_auto_combine ~= 1 then
 		CustomGameEventManager:Send_ServerToTeam(team_id,"mima",{
 			key = GetClientKey(team_id),
 			text = "text_mima_hand_full"
@@ -3248,40 +3255,67 @@ function DAC:OnRequestBuyChess(keys)
 			[1] = chess1,
 			[2] = chess2,
 		})
-		RemoveChess({ caster = h, target = chess1 })
-		RemoveChess({ caster = h, target = chess2 })
+		RemoveChess({ caster = h, target = chess1, is_sell = false })
+		RemoveChess({ caster = h, target = chess2, is_sell = false })
 		chess = chess..'1'
 		
 		Timers:CreateTimer(0.3,function()
 			local uu = CreateChessInHand(h,chess,"particles/units/unit_greevil/loot_greevil_death.vpcf")
+			EmitSoundOn("Loot_Drop_Stinger_Rare",uu)
 			GiveItems2Unit(items_table,uu)
 			--添加星星特效
 			play_particle('effect/arrow/star2.vpcf',PATTACH_OVERHEAD_FOLLOW,uu,5)
+			--发弹幕
+			CustomGameEventManager:Send_ServerToAllClients("bullet",{
+				player_id = TeamId2Hero(team_id):GetPlayerID(),
+				target = chess,
+			})
 
 			Timers:CreateTimer(0.5,function()
 				--二次合成？
-				local have_exist_count,chess1,chess2,chess3 = Find2SameChessInHand(h,chess)
-				if have_exist_count >= 3 and chess1 ~= nil and chess2 ~= nil and chess3 ~= nil then
-					local items_table = GetAllItemsInUnits({
-						[1] = chess1,
-						[2] = chess2,
-						[3] = chess3,
-					})
-					RemoveChess({ caster = h, target = chess1 })
-					RemoveChess({ caster = h, target = chess2 })
-					RemoveChess({ caster = h, target = chess3 })
-					chess = chess..'1'
-					Timers:CreateTimer(0.3,function()
-						local uuu = CreateChessInHand(h,chess,"particles/units/unit_greevil/loot_greevil_death.vpcf")
-						GiveItems2Unit(items_table,uuu)
-						--添加星星特效
-						play_particle('effect/arrow/star3.vpcf',PATTACH_OVERHEAD_FOLLOW,uu,5)
-					end)
-				end
+				TriggerCombineHand(h,chess)
 			end)
 		end)
 	else
 		CreateChessInHand(h,chess)
+	end
+end
+
+function TriggerCombineHand(h,chess)
+	if string.find(chess,'11') ~= nil or h.is_auto_combine ~= 1 then
+		return
+	end
+	local have_exist_count,chess1,chess2,chess3 = Find2SameChessInHand(h,chess)
+	if have_exist_count >= 3 and chess1 ~= nil and chess2 ~= nil and chess3 ~= nil then
+		local items_table = GetAllItemsInUnits({
+			[1] = chess1,
+			[2] = chess2,
+			[3] = chess3,
+		})
+		RemoveChess({ caster = h, target = chess1, is_sell = false })
+		RemoveChess({ caster = h, target = chess2, is_sell = false })
+		RemoveChess({ caster = h, target = chess3, is_sell = false })
+		local advance_unit_name = chess..'1'
+		Timers:CreateTimer(0.3,function()
+			local uuu = CreateChessInHand(h,advance_unit_name,"particles/units/unit_greevil/loot_greevil_death.vpcf")
+			EmitSoundOn("Loot_Drop_Stinger_Rare",uu)
+			GiveItems2Unit(items_table,uuu)
+			--添加星星特效
+			if string.find(advance_unit_name,'11') ~= nil then
+				play_particle('effect/arrow/star3.vpcf',PATTACH_OVERHEAD_FOLLOW,uuu,5)
+			elseif string.find(advance_unit_name,'1') ~= nil then 
+				play_particle('effect/arrow/star2.vpcf',PATTACH_OVERHEAD_FOLLOW,uuu,5)
+			end
+			--发弹幕
+			CustomGameEventManager:Send_ServerToAllClients("bullet",{
+				player_id = h:GetPlayerID(),
+				target = advance_unit_name,
+			})
+			Timers:CreateTimer(0.5,function()
+				--二次合成？
+				TriggerCombineHand(h,advance_unit_name)
+			end)
+		end)
 	end
 end
 
@@ -3456,6 +3490,10 @@ function RecallChess(keys)
 	end
 
 	StatClassCount(team_id)
+
+	Timers:CreateTimer(1,function()
+		TriggerCombineHand(caster,picked_chess:GetUnitName())
+	end)
 end
 --多余的滚回去
 function RandomRecallChess()
@@ -3671,6 +3709,10 @@ function DAC:OnPickChessPosition(keys)
 		-- setHandStatus(team_id)
 
 		StatClassCount(team_id)
+
+		Timers:CreateTimer(1,function()
+			TriggerCombineHand(caster,picked_chess:GetUnitName())
+		end)
 	else
 		--要跳到场上
 		if IsInAttackArea(Vector2X(p,team_id),Vector2Y(p,team_id)) == true then
@@ -3840,8 +3882,10 @@ function RemoveChess(keys)
 		return
 	end
 	
-	play_particle("particles/units/heroes/hero_shadowshaman/shadowshaman_voodoo.vpcf",PATTACH_ABSORIGIN_FOLLOW,target,3)
-	EmitSoundOn("Hero_Lion.Voodoo",caster)
+	if keys.is_sell == nil or keys.is_sell == true then
+		play_particle("particles/units/heroes/hero_shadowshaman/shadowshaman_voodoo.vpcf",PATTACH_ABSORIGIN_FOLLOW,target,3)
+		EmitSoundOn("Hero_Lion.Voodoo",caster)
+	end
 
 
 	local is_removing_hand = false
@@ -3886,17 +3930,21 @@ function RemoveChess(keys)
 	target:RemoveAbility('act_teleport')
 	target:RemoveModifierByName('modifier_act_teleport')
 
-    AddMana(caster, target:GetLevel())
-    GameRules:GetGameModeEntity().stat_info[caster.steam_id]['gold'] = GameRules:GetGameModeEntity().stat_info[caster.steam_id]['gold'] - target:GetLevel()	
+	if keys.is_sell == nil or keys.is_sell == true then
+    	AddMana(caster, target:GetLevel())
+   		GameRules:GetGameModeEntity().stat_info[caster.steam_id]['gold'] = GameRules:GetGameModeEntity().stat_info[caster.steam_id]['gold'] - target:GetLevel()	
+   	
 
-	for slot=0,8 do
-		if target:GetItemInSlot(slot)~= nil then
-			local name = target:GetItemInSlot(slot):GetAbilityName()
-			if name ~= nil then
-				DropItemAppointed(caster,target,name)
+		for slot=0,8 do
+			if target:GetItemInSlot(slot)~= nil then
+				local name = target:GetItemInSlot(slot):GetAbilityName()
+				if name ~= nil then
+					DropItemAppointed(caster,target,name)
+				end
 			end
 		end
 	end
+
 	local last_chess = false
 	if FindEmptyHandSlot(team_id) == 1 then
 		last_chess = true
@@ -4055,7 +4103,7 @@ function CombineChess(u0,u1,u2)
 		AddAbilityAndSetLevel(uu,'jiaoxie_wudi')
 		--合成特效
 		play_particle("particles/units/unit_greevil/loot_greevil_death.vpcf",PATTACH_ABSORIGIN_FOLLOW,uu,3)
-		EmitGlobalSound("Loot_Drop_Stinger_Rare")
+		EmitSoundOn("Loot_Drop_Stinger_Rare",uu)
 
 		GameRules:GetGameModeEntity().population[team_id] = GameRules:GetGameModeEntity().population[team_id] - 1
 		if u2 ~= nil then
@@ -5728,6 +5776,14 @@ function ChessAI(u)
 					 		Queue = 0 --Optional.  Used for queueing up abilities
 					 	}
 						ExecuteOrderFromTable(newOrder)
+
+						if a == 'alchemist_chemical_rage' then
+							AcidSpray({
+								caster = u,
+								ability_level = u:FindAbilityByName(a):GetLevel(),
+							})
+						end
+
 						return RandomFloat(0.5,2) + ai_delay
 					elseif GameRules:GetGameModeEntity().ability_behavior_list[a] == 4 then
 						--单位目标
@@ -9357,7 +9413,7 @@ function Find2SameChessInHand(caster,chess)
 	local chess3 = nil
 	if caster ~= nil and caster.hand_entities ~= nil then
 		for _,v in pairs(caster.hand_entities) do
-			if IsUnitExist(v) == true and v:GetUnitName() == chess then
+			if IsUnitExist(v) == true and v:GetUnitName() == chess and v:FindAbilityByName('is_druid') == nil then
 				count = count + 1
 				if count == 1 then
 					chess1 = v
@@ -9412,4 +9468,17 @@ function DAC:OnSetAutoCombine(keys)
 	if hero ~= nil then
 		hero.is_auto_combine = keys.is_auto_combine
 	end
+end
+
+function AcidSpray(keys)
+	local caster = keys.caster
+	local ability_level = keys.ability_level
+
+	InvisibleUnitCast({
+		caster = caster,
+		ability = 'alchemist_acid_spray',
+		level = ability_level,
+		unluckydog = nil,
+		position = caster:GetAbsOrigin(),
+	})
 end

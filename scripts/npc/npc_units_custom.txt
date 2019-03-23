@@ -16331,7 +16331,7 @@
 		// Status
 		// ----------------------------------------------------------------
 		// Base health.
-		"StatusHealth"	"900"
+		"StatusHealth"	"950"
 		// Health regeneration rate.
 		"StatusHealthRegen"	"0"
 		// Base mana.
@@ -16455,7 +16455,7 @@
 		// Status
 		// ----------------------------------------------------------------
 		// Base health.
-		"StatusHealth"	"1800"
+		"StatusHealth"	"1900"
 		// Health regeneration rate.
 		"StatusHealthRegen"	"0"
 		// Base mana.
@@ -16587,7 +16587,7 @@
 		// Status
 		// ----------------------------------------------------------------
 		// Base health.
-		"StatusHealth"	"3600"
+		"StatusHealth"	"3800"
 		// Health regeneration rate.
 		"StatusHealthRegen"	"0"
 		// Base mana.
@@ -16749,9 +16749,9 @@
 		"Ability16"	"dac_guai_base"
 		"MinimapIcon"	"minimap_creep"
 		"MinimapIconSize"	"256"
-		"AttackDamageMin"	"95"
-		"AttackDamageMax"	"115"
-		"AttackRate"	"1.4"
+		"AttackDamageMin"	"110"
+		"AttackDamageMax"	"120"
+		"AttackRate"	"1.3"
 		"AttackRange"	"205"
 		"Creature"
 		{
@@ -16877,9 +16877,9 @@
 		"Ability16"	"dac_guai_base"
 		"MinimapIcon"	"minimap_creep"
 		"MinimapIconSize"	"256"
-		"AttackDamageMin"	"190"
-		"AttackDamageMax"	"230"
-		"AttackRate"	"1.4"
+		"AttackDamageMin"	"220"
+		"AttackDamageMax"	"240"
+		"AttackRate"	"1.3"
 		"AttackRange"	"205"
 		"Creature"
 		{
@@ -17005,9 +17005,9 @@
 		"Ability16"	"dac_guai_base"
 		"MinimapIcon"	"minimap_creep"
 		"MinimapIconSize"	"256"
-		"AttackDamageMin"	"380"
-		"AttackDamageMax"	"460"
-		"AttackRate"	"1.4"
+		"AttackDamageMin"	"440"
+		"AttackDamageMax"	"480"
+		"AttackRate"	"1.3"
 		"AttackRange"	"205"
 		"Creature"
 		{
@@ -20767,27 +20767,35 @@
 			{
 				"Wearable1"
 				{
-					"ItemDef"	"5968"
+					"ItemDef"	"8632"
 				}
 				"Wearable2"
 				{
-					"ItemDef"	"131"
+					"ItemDef"	"527"
 				}
 				"Wearable3"
 				{
-					"ItemDef"	"176"
+					"ItemDef"	"8385"
 				}
 				"Wearable4"
 				{
-					"ItemDef"	"5967"
+					"ItemDef"	"8383"
 				}
 				"Wearable5"
 				{
-					"ItemDef"	"178"
+					"ItemDef"	"5967"
 				}
 				"Wearable6"
 				{
-					"ItemDef"	"5971"
+					"ItemDef"	"6965"
+				}
+				"Wearable7"
+				{
+					"ItemDef"	"131"
+				}
+				"Wearable8"
+				{
+					"ItemDef"	"8381"
 				}
 			}
 		}
@@ -20891,27 +20899,39 @@
 			{
 				"Wearable1"
 				{
-					"ItemDef"	"9571"
+					"ItemDef"	"8203"
 				}
 				"Wearable2"
 				{
-					"ItemDef"	"131"
+					"ItemDef"	"9140"
 				}
 				"Wearable3"
 				{
-					"ItemDef"	"9577"
+					"ItemDef"	"527"
 				}
 				"Wearable4"
 				{
-					"ItemDef"	"9428"
+					"ItemDef"	"9141"
 				}
 				"Wearable5"
 				{
-					"ItemDef"	"9578"
+					"ItemDef"	"9829"
 				}
 				"Wearable6"
 				{
-					"ItemDef"	"9579"
+					"ItemDef"	"5971"
+				}
+				"Wearable7"
+				{
+					"ItemDef"	"131"
+				}
+				"Wearable8"
+				{
+					"ItemDef"	"9828"
+				}
+				"Wearable9"
+				{
+					"ItemDef"	"9428"
 				}
 			}
 		}
