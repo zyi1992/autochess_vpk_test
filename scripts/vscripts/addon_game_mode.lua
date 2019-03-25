@@ -496,6 +496,8 @@ function Precache( context )
 		"effect/nianshou/courier_nian_ambient.vpcf",
 		"soundevents/game_sounds.vsndevts",
 		"soundevents/voscripts/game_sounds_vo_announcer_killing_spree.vsndevts",
+		"effect/3sha/vr_killbanner_triplekill.vpcf",
+		"effect/5sha/vr_killbanner_rampage.vpcf",
 	} 
     print("Precache...")
 	local t=table.maxn(mxx)
@@ -2905,9 +2907,15 @@ function DAC:OnEntityKilled(keys)
 	if attacker == nil then
 		return
 	end
+	if string.find(attacker:GetUnitName(),'pve') ~= nil then
+		return
+	end
+	if string.find(u:GetUnitName(),'pve') ~= nil then
+		return
+	end
 
 	--连杀数
-	if attacker.killing_spree_time == nil or GameRules:GetGameTime() - attacker.killing_spree_time < 5 then
+	if attacker.killing_spree_time == nil or GameRules:GetGameTime() - attacker.killing_spree_time < 3 then
 		attacker.killing_spree_time = GameRules:GetGameTime()
 		-- +1
 		if attacker.killing_spree_count == nil then
@@ -2953,7 +2961,7 @@ function DAC:OnEntityKilled(keys)
 	end
 	if attacker.killing_spree_count == 5 then
 		--暴走
-		play_particle("particles/vr_env/killbanners/vr_killbanner_rampage.vpcf",PATTACH_OVERHEAD_FOLLOW,attacker,5)
+		play_particle("effect/5sha/vr_killbanner_rampage.vpcf",PATTACH_OVERHEAD_FOLLOW,attacker,5)
 		EmitSoundOn("announcer_killing_spree_announcer_kill_rampage_01",attacker)
 
 		local scale = attacker:GetModelScale() + 0.3
@@ -2996,7 +3004,7 @@ function DAC:OnEntityKilled(keys)
 
 	if attacker.killing_spree_count > 5 then
 		--暴走
-		play_particle("particles/vr_env/killbanners/vr_killbanner_rampage.vpcf",PATTACH_OVERHEAD_FOLLOW,attacker,5)
+		play_particle("effect/5sha/vr_killbanner_rampage.vpcf",PATTACH_OVERHEAD_FOLLOW,attacker,5)
 		EmitSoundOn("announcer_killing_spree_announcer_kill_rampage_01",attacker)
 
 		-- attacker:SetModelScale(attacker:GetModelScale()*1.5)
