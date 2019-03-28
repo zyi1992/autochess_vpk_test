@@ -5510,7 +5510,7 @@ function AddComboAbility(teamid)
 			end
 		end
 	end
-	if combo_count_table_self['is_god'] == 2 and combo_count == 0 then
+	if combo_count_table_self['is_god'] == 2 and combo_count_race == 0 then
 		for _,chess in pairs(GameRules:GetGameModeEntity().to_be_destory_list[teamid]) do
 			--是友军
 			if chess.team_id == teamid then
@@ -5623,7 +5623,7 @@ function AddComboAbility(teamid)
 			end
 		end
 	end
-	if combo_count_table_enemy['is_god'] >= 1 and combo_count == 0 then
+	if combo_count_table_enemy['is_god'] >= 1 and combo_count_race == 0 then
 		for _,chess in pairs(GameRules:GetGameModeEntity().to_be_destory_list[teamid]) do
 			--是友军
 			if chess.team_id == 4 then
@@ -5635,7 +5635,7 @@ function AddComboAbility(teamid)
 			end
 		end
 	end
-	if combo_count_table_self['is_god'] == 2 and combo_count == 0 then
+	if combo_count_table_self['is_god'] == 2 and combo_count_race == 0 then
 		for _,chess in pairs(GameRules:GetGameModeEntity().to_be_destory_list[teamid]) do
 			--是友军
 			if chess.team_id == 4 then
@@ -5805,10 +5805,14 @@ function ChessAI(u)
 			u:FindModifierByName("modifier_nevermore_necromastery"):SetStackCount(20)
 		end
 
-		if u:FindAbilityByName('mars_bulwark') ~= nil then
-			AddAbilityAndSetLevel(u,"mars_shield_passive",u:FindAbilityByName('mars_bulwark'):GetLevel())	
-			AddAbilityAndSetLevel(u,"mars_shield",u:FindAbilityByName('mars_bulwark'):GetLevel())		
-			u:FindAbilityByName("mars_shield"):SetHidden(true)
+		if u:HasAbility('mars_bulwark') then
+			-- AddAbilityAndSetLevel(u,"mars_shield_passive",u:FindAbilityByName('mars_bulwark'):GetLevel())	
+			Timers:CreateTimer(1,function()
+				AddAbilityAndSetLevel(u,"mars_shield",u:FindAbilityByName('mars_bulwark'):GetLevel())
+				u:FindAbilityByName("mars_shield"):SetHidden(true)
+
+				StartMarsShieldCD(u)
+			end)
 		end
 
 		RemoveAbilityAndModifier(u,'jiaoxie_wudi')
@@ -8215,21 +8219,34 @@ function SummonOneMinion(caster, minion, p)
 end
 
 function FindAClosestEnemyAndAttack(u)
-	if u:FindAbilityByName('mars_bulwark') ~= nil then
+	if u:HasAbility('mars_bulwark') then
 		--玛尔斯
 		local target = FindUnluckyDog190(u)
 		if target == nil then
 			return nil
 		end
-		local newOrder = {
-	 		UnitIndex = u:entindex(), 
-	 		OrderType = DOTA_UNIT_ORDER_MOVE_TO_POSITION,
-	 		TargetIndex = target:entindex(), 
-	 		Position = target:GetAbsOrigin(),
-	 		Queue = 0 
-	 	}
-		ExecuteOrderFromTable(newOrder)
-		return RandomFloat(1,2)
+		if u:FindAbilityByName('mars_bulwark'):GetCooldownTimeRemaining() < 0.1 then
+			u:SwapAbilities('mars_bulwark','mars_shield', false, true)
+			Timers:CreateTimer(0.1,function()
+				ExecuteOrderFromTable({
+			 		UnitIndex = u:entindex(), 
+			 		OrderType = DOTA_UNIT_ORDER_CAST_NO_TARGET,
+			 		TargetIndex = nil, --Optional.  Only used when targeting units
+			 		AbilityIndex = u:FindAbilityByName('mars_shield'):entindex(), --Optional.  Only used when casting abilities
+			 		Position = nil, --Optional.  Only used when targeting the ground
+			 		Queue = 0 --Optional.  Used for queueing up abilities
+			 	})
+			end)
+		else
+			ExecuteOrderFromTable({
+		 		UnitIndex = u:entindex(), 
+		 		OrderType = DOTA_UNIT_ORDER_MOVE_TO_POSITION,
+		 		TargetIndex = target:entindex(), 
+		 		Position = target:GetAbsOrigin(),
+		 		Queue = 0 
+		 	})
+		end
+		return 1
 	end
 
 
@@ -9720,7 +9737,6 @@ function ZeusThunderCourier(zeus,courier,level)
 	local damage_courier_per = 5.0+ 5*level
 
 	local damage = math.floor(target:GetHealth() * damage_courier_per / 100)
-	prt ('damage = '..damage)
 
 	local after_hp = target:GetHealth() - damage
 	if after_hp <= 0 then
@@ -9749,26 +9765,18 @@ function ZeusThunderCourier(zeus,courier,level)
 	end)
 end
 
-function MarsShield(keys)
-	local caster = keys.caster
-	if caster:FindAbilityByName('act_victory') ~= nil then
-		return
-	end
+-- function MarsShield(keys)
+-- 	local caster = keys.caster
+-- 	if caster:FindAbilityByName('act_victory') ~= nil then
+-- 		return
+-- 	end
 
-	caster:SwapAbilities('mars_bulwark', 'mars_shield', false, true)
-	-- AddAbilityAndSetLevel(caster,'mars_shield',caster:FindAbilityByName('mars_bulwark'):GetLevel())
-	Timers:CreateTimer(0.2,function()
-		local newOrder = {
-	 		UnitIndex = caster:entindex(), 
-	 		OrderType = DOTA_UNIT_ORDER_CAST_NO_TARGET,
-	 		TargetIndex = nil, --Optional.  Only used when targeting units
-	 		AbilityIndex = caster:FindAbilityByName('mars_shield'):entindex(), --Optional.  Only used when casting abilities
-	 		Position = nil, --Optional.  Only used when targeting the ground
-	 		Queue = 0 --Optional.  Used for queueing up abilities
-	 	}
-		ExecuteOrderFromTable(newOrder)
-	end)
-end
+-- 	-- caster:SwapAbilities('mars_bulwark', 'mars_shield', false, true)
+-- 	-- AddAbilityAndSetLevel(caster,'mars_shield',caster:FindAbilityByName('mars_bulwark'):GetLevel())
+-- 	Timers:CreateTimer(0.2,function()
+		
+-- 	end)
+-- end
 
 function MarsShieldDamage(keys)
 	local caster = keys.caster
@@ -9786,4 +9794,17 @@ function MarsShieldDamage(keys)
 		damage_type = DAMAGE_TYPE_PHYSICAL,
 	})
 	caster:SwapAbilities('mars_shield','mars_bulwark', false, true)
+	StartMarsShieldCD(caster)
+end
+
+function StartMarsShieldCD(caster)
+	if caster:HasAbility("mars_bulwark") then
+		if caster:HasAbility('is_god_buff_plus') then
+			caster:FindAbilityByName("mars_bulwark"):StartCooldown(2.5)
+		elseif caster:HasAbility('is_god_buff') then
+			caster:FindAbilityByName("mars_bulwark"):StartCooldown(5)
+		else
+			caster:FindAbilityByName("mars_bulwark"):StartCooldown(10)
+		end
+	end
 end

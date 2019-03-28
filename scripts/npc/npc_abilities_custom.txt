@@ -14677,6 +14677,7 @@
 		"AbilityTextureName"	"mars_bulwark"
 		"AbilityUnitDamageType"	"DAMAGE_TYPE_PHYSICAL"
 		"MaxLevel"	"3"
+		"AbilityCooldown"	"10"
 		"AbilitySpecial"
 		{
 			"01"
@@ -14702,14 +14703,9 @@
 			"05"
 			{
 				"var_type"	"FIELD_INTEGER"
-				"shield_bash_duration"	"5"
-			}
-			"06"
-			{
-				"var_type"	"FIELD_INTEGER"
 				"shield_bash_radius"	"200"
 			}
-			"07"
+			"06"
 			{
 				"var_type"	"FIELD_INTEGER"
 				"shield_bash_damage"	"150 300 450"
