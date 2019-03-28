@@ -1340,6 +1340,7 @@ function DAC:InitGameMode()
 		is_shaman = {condition = 2 , type = 5},
 		is_demonhunter = {condition = 1 , type = 1},
 		is_demonhunter1 = {condition = 2 , type = 1},
+		is_druid = {condition = 2, type = 1},
 
 		--种族技能
 		is_troll = { ability = 'is_troll_buff', condition = 2, type = 1, is_race = true },
@@ -1369,7 +1370,6 @@ function DAC:InitGameMode()
 		is_dwarf = { ability = 'is_dwarf_buff', condition = 1, type = 1, is_race = true },
 		is_ogre = { ability = 'is_ogre_buff', condition = 1, type = 1, is_race = true },
 		is_dragon = {condition = 3 , type = 1, is_race = true },
-		is_druid = {condition = 2, type = 1, is_race = true },
 		is_nraqi = {condition = 1 , type = 1, is_race = true },
 		is_god = { condition = 999, type = 2, is_race = true },
 		is_god1 = { condition = 999, type = 2, is_race = true },
@@ -5048,7 +5048,7 @@ function LoseARound(team,enemychess_new)
 				--宙斯，要雷劈的
 				AddAbilityAndSetLevel(u,'act_thunder')
 				local u_thunder_level = u:FindAbilityByName('zeus_thunder'):GetLevel()
-				damage_all = damage_all + math.floor(hero:GetHealth()*(5*u_thunder_level+5)/100)
+				damage_all = damage_all + math.floor(hero:GetHealth()*(10*u_thunder_level+5)/100)
 				is_have_thunder = true
 			end
 		end

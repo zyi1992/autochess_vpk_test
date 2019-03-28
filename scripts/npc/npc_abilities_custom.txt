@@ -8208,7 +8208,7 @@
 				"IsDebuff"	"0"
 				"Properties"
 				{
-					"MODIFIER_PROPERTY_MAGICAL_RESISTANCE_BONUS"	"30"
+					"MODIFIER_PROPERTY_MAGICAL_RESISTANCE_BONUS"	"40"
 				}
 				"Passive"	"1"
 				"EffectName"	"particles/units/heroes/hero_siren/naga_siren_song_debuff_b.vpcf"
@@ -8658,7 +8658,7 @@
 				"IsDebuff"	"0"
 				"Properties"
 				{
-					"MODIFIER_PROPERTY_DAMAGEOUTGOING_PERCENTAGE"	"15"
+					"MODIFIER_PROPERTY_DAMAGEOUTGOING_PERCENTAGE"	"20"
 				}
 				"IsBuff"	"1"
 				"States"	{}
@@ -14615,12 +14615,12 @@
 			"02"
 			{
 				"var_type"	"FIELD_INTEGER"
-				"damage_per"	"20 30 40"
+				"damage_per"	"15 25 35"
 			}
 			"03"
 			{
 				"var_type"	"FIELD_INTEGER"
-				"damage_courier_per"	"10 15 20"
+				"damage_courier_per"	"15 25 35"
 			}
 		}
 	}
