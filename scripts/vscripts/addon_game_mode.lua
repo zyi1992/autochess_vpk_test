@@ -502,6 +502,8 @@ function Precache( context )
 		"effect/god/1.vpcf",
 		"soundevents/voscripts/game_sounds_vo_zuus.vsndevts",
 		"soundevents/voscripts/game_sounds_vo_mars.vsndevts",
+		"effect/mars/2/e.vpcf",
+		"effect/mars/1/e.vpcf",
 	} 
     print("Precache...")
 	local t=table.maxn(mxx)
@@ -2679,6 +2681,7 @@ function RestoreARound(teamid)
 				prepare_riki = true
 			end
 			MakeTiny(x)
+			MakeMars(x)
 			table.insert(GameRules:GetGameModeEntity().to_be_destory_list[teamid],x)
 			x:SetForwardVector(Vector(0,1,0))
 			AddAbilityAndSetLevel(x,'root_self')
@@ -3360,6 +3363,7 @@ function CreateChessInHand(h,chess,particle)
 	end
 	local x = CreateUnitByName(chess,HandIndex2Vector(team_id,index),true,nil,nil,team_id)
 	MakeTiny(x)
+	MakeMars(x)
 	PlayChessDialogue(x,'spawn')
 
 	GameRules:GetGameModeEntity().hand[team_id][index] = 1
@@ -4090,6 +4094,7 @@ function CombineChess(u0,u1,u2)
 		--造高级棋子
 		local uu = CreateUnitByName(advance_unit_name, p,false,nil,nil,team_id) 
 		MakeTiny(uu)
+		MakeMars(uu)
 		PlayChessDialogue(uu,'merge')
 		
 		--给高级棋子添加棋子技能
@@ -5694,6 +5699,7 @@ function MirrorAChess(teamid,i,j,opp)
 	Timers:CreateTimer(RandomFloat(0.1,0.3),function()
 		local x = CreateUnitByName(GameRules:GetGameModeEntity().mychess[teamid][i..'_'..j].chess,XY2Vector(9-j,9-i,opp),true,nil,nil,DOTA_TEAM_NEUTRALS)
 		MakeTiny(x)
+		MakeMars(x)
 		x:SetForwardVector(Vector(0,-1,0))
 
 		x.y_x = (9-i)..'_'..(9-j)
@@ -8785,6 +8791,24 @@ function MakeTiny(x)
 		x.part3:FollowEntity(x,true)
 		x.part4 = SpawnEntityFromTableSynchronous('prop_dynamic',{model="models/items/tiny/scarletquarry_offhand_t2/scarletquarry_offhand_t2.vmdl"})
 		x.part4:FollowEntity(x,true)
+	end
+end
+
+function MakeMars(x)
+	if not IsUnitExist(x) then
+		return
+	end
+	if x:GetUnitName() == 'chess_mars11' then
+		PlayParticleOnUnitUntilDeath({
+			caster = x,
+			p = "effect/mars/2/e.vpcf",
+		})		
+	end
+	if x:GetUnitName() == 'chess_mars1' then
+		PlayParticleOnUnitUntilDeath({
+			caster = x,
+			p = "effect/mars/1/e.vpcf",
+		})
 	end
 end
 

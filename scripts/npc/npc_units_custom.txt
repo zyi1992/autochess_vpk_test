@@ -30005,7 +30005,7 @@
 		// Armor
 		// ----------------------------------------------------------------
 		// Physical protection.
-		"ArmorPhysical"	"5"
+		"ArmorPhysical"	"7"
 		// Magical protection.
 		"MagicalResistance"	"0"
 		// Attack
@@ -30126,7 +30126,7 @@
 		// Armor
 		// ----------------------------------------------------------------
 		// Physical protection.
-		"ArmorPhysical"	"5"
+		"ArmorPhysical"	"9"
 		// Magical protection.
 		"MagicalResistance"	"0"
 		// Attack
