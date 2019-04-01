@@ -9824,11 +9824,11 @@ end
 function StartMarsShieldCD(caster)
 	if caster:HasAbility("mars_bulwark") then
 		if caster:HasAbility('is_god_buff_plus') then
-			caster:FindAbilityByName("mars_bulwark"):StartCooldown(2.5)
+			caster:FindAbilityByName("mars_bulwark"):StartCooldown(2)
 		elseif caster:HasAbility('is_god_buff') then
-			caster:FindAbilityByName("mars_bulwark"):StartCooldown(5)
+			caster:FindAbilityByName("mars_bulwark"):StartCooldown(4)
 		else
-			caster:FindAbilityByName("mars_bulwark"):StartCooldown(10)
+			caster:FindAbilityByName("mars_bulwark"):StartCooldown(8)
 		end
 	end
 end

@@ -14677,7 +14677,7 @@
 		"AbilityTextureName"	"mars_bulwark"
 		"AbilityUnitDamageType"	"DAMAGE_TYPE_PHYSICAL"
 		"MaxLevel"	"3"
-		"AbilityCooldown"	"10"
+		"AbilityCooldown"	"8"
 		"AbilitySpecial"
 		{
 			"01"
