@@ -396,7 +396,7 @@
                 "h307"        "Jade Hatchling"
                 "h308"        "Drodo"
                 "h309"        "Mecha Donkey"
-                "h310"        "Hwytty & Shyzzyrd "
+                "h310"        "Hwytty Shyzzyrd"
                 "h311"        "Octupus"
                 "h312"        "Scarab"
                 "h313"        "Sheep"
