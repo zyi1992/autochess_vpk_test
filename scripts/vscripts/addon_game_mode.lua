@@ -656,157 +656,11 @@ function Precache( context )
 		--
 		chess_zeus = 'zeus_thunder',
 		chess_mars = 'mars_bulwark',
-
-		chess_cm1 = 'cm_mana_aura',
-		chess_axe1 = 'axe_berserkers_call',
-		chess_dr1 = 'shooter_aura',
-		chess_eh1 = 'enchantress_natures_attendants',
-		chess_om1 = 'ogre_magi_bloodlust',
-		chess_tusk1 = 'tusk_walrus_punch',
-		chess_bm1 = 'beastmaster_wild_axes',
-		chess_jugg1 = 'juggernaut_blade_fury',
-		chess_lyc1 = 'lyc_wolf',
-		chess_shredder1 = 'shredder_whirling_death',
-		chess_tk1 = 'a108',
-		chess_light1 = 'keeper_of_the_light_illuminate',
-		chess_ok1 = 'omniknight_purification',
-		chess_razor1 = 'razor_plasma_field',
-		chess_wr1 = 'windrunner_powershot',
-		chess_doom1 = 'doom_bringer_doom',
-		chess_kunkka1 = 'kunkka_ghostship',
-		chess_lina1 = 'lina_laguna_blade',
-		chess_troll1 = 'troll_warlord_fervor',
-		chess_veno1 = 'veno_ward',
-		chess_gyro1 = 'gyrocopter_call_down',
-		chess_jakiro1 = 'jakiro_macropyre',
-		chess_lich1 = 'lich_chain_frost',
-		chess_qop1 = 'queenofpain_scream_of_pain',
-		chess_th1 = 'tidehunter_ravage',
-		--
-		chess_am1 = 'antimage_mana_break',
-		chess_bh1 = 'bounty_hunter_shuriken_toss',
-		chess_wd1 = 'witch_doctor_paralyzing_cask',
-		chess_clock1 = 'rattletrap_battery_assault',
-		chess_ss1 = 'shadow_shaman_voodoo',
-		chess_pa1 = 'phantom_assassin_coup_de_grace',
-		chess_puck1 = 'puck_illusory_orb',
-		chess_slardar1 = 'slardar_amplify_damage',
-		chess_ck1 = 'chaos_knight_chaos_bolt',
-		chess_abaddon1 = 'abaddon_aphotic_shield',
-		chess_sk1 = 'sandking_burrowstrike',
-		chess_slark1 = 'slark_jump',
-		chess_sniper1 = 'sniper_assassinate',
-		chess_nec1 = 'necrolyte_death_pulse',
-		chess_ta1 = 'templar_assassin_refraction',
-		chess_enigma1 = 'enigma_midnight_pulse',
-		--
-		chess_bat1 = 'batrider_sticky_napalm',
-		chess_luna1 = 'luna_moon_glaive',
-		chess_tp1 = 'treant_leech_seed',
-		chess_sf1 = 'nevermore_requiem',
-		chess_dk1 = 'dragon_knight_elder_dragon_form',
-		chess_viper1 = 'viper_viper_strike',
-		chess_medusa1 = 'medusa_stone_gaze',
-		chess_disruptor1 = 'disruptor_static_storm',
-		chess_ga1 = 'alchemist_chemical_rage',
-		chess_tech1 = 'chess_tech_bomb',
-		--
-		chess_fur1 = 'fur_tree',
-		chess_ld1 = 'ld_bear',
-		--
-		chess_morph1 = 'morphling_waveform',
-		chess_tb1 = 'tb_mohua',
-		chess_tiny1 = 'tiny_touzhi',
-		--
-		chess_riki1 = 'riki_smoke_screen',
-		chess_pom1 = 'pom_arrow_far',
-		chess_dp1 = 'death_prophet_exorcism',
-		--
-		chess_fv1 = 'faceless_void_chronosphere',
-		chess_kael1 = 'kael_???',
-		--
-		chess_zeus1 = 'zeus_thunder',
-		chess_mars1 = 'mars_bulwark',
-
-
-		chess_cm11 = 'cm_mana_aura',
-		chess_axe11 = 'axe_berserkers_call',
-		chess_dr11 = 'shooter_aura',
-		chess_eh11 = 'enchantress_natures_attendants',
-		chess_om11 = 'ogre_magi_bloodlust',
-		chess_tusk11 = 'tusk_walrus_punch',
-		chess_bm11 = 'beastmaster_wild_axes',
-		chess_jugg11 = 'juggernaut_blade_fury',
-		chess_lyc11 = 'lyc_wolf',
-		chess_shredder11 = 'shredder_whirling_death',
-		chess_tk11 = 'a108',
-		chess_light11 = 'keeper_of_the_light_illuminate',
-		chess_ok11 = 'omniknight_purification',
-		chess_razor11 = 'razor_plasma_field',
-		chess_wr11 = 'windrunner_powershot',
-		chess_doom11 = 'doom_bringer_doom',
-		chess_kunkka11 = 'kunkka_ghostship',
-		chess_lina11 = 'lina_laguna_blade',
-		chess_troll11 = 'troll_warlord_fervor',
-		chess_veno11 = 'veno_ward',
-		chess_gyro11 = 'gyrocopter_call_down',
-		chess_jakiro11 = 'jakiro_macropyre',
-		chess_lich11 = 'lich_chain_frost',
-		chess_qop11 = 'queenofpain_scream_of_pain',
-		chess_th11 = 'tidehunter_ravage',
-		--
-		chess_am11 = 'antimage_mana_break',
-		chess_bh11 = 'bounty_hunter_shuriken_toss',
-		chess_wd11 = 'witch_doctor_paralyzing_cask',
-		chess_clock11 = 'rattletrap_battery_assault',
-		chess_ss11 = 'shadow_shaman_voodoo',
-		chess_pa11 = 'phantom_assassin_coup_de_grace',
-		chess_puck11 = 'puck_illusory_orb',
-		chess_slardar11 = 'slardar_amplify_damage',
-		chess_ck11 = 'chaos_knight_chaos_bolt',
-		chess_abaddon11 = 'abaddon_aphotic_shield',
-		chess_sk11 = 'sandking_burrowstrike',
-		chess_slark11 = 'slark_jump',
-		chess_sniper11 = 'sniper_assassinate',
-		chess_nec11 = 'necrolyte_death_pulse',
-		chess_ta11 = 'templar_assassin_refraction',
-		chess_enigma11 = 'enigma_midnight_pulse',
-		--
-		chess_bat11 = 'batrider_sticky_napalm',
-		chess_luna11 = 'luna_moon_glaive',
-		chess_tp11 = 'treant_leech_seed',
-		chess_sf11 = 'nevermore_requiem',
-		chess_dk11 = 'dragon_knight_elder_dragon_form',
-		chess_viper11 = 'viper_viper_strike',
-		chess_medusa11 = 'medusa_stone_gaze',
-		chess_disruptor11 = 'disruptor_static_storm',
-		chess_ga11 = 'alchemist_chemical_rage',
-		chess_tech11 = 'chess_tech_bomb',
-		--
-		chess_fur11 = 'fur_tree',
-		chess_ld11 = 'ld_bear',
-		--
-		chess_morph11 = 'morphling_waveform',
-		chess_tb11 = 'tb_mohua',
-		chess_tiny11 = 'tiny_touzhi',
-		--
-		chess_riki11 = 'riki_smoke_screen',
-		chess_pom11 = 'pom_arrow_far',
-		chess_dp11 = 'death_prophet_exorcism',
-		--
-		chess_fv11 = 'faceless_void_chronosphere',
-		chess_kael11 = 'kael_???',
-		--
-		chess_zeus11 = 'zeus_thunder',
-		chess_mars11 = 'mars_bulwark',
-
-		chess_ck_ssr = 'ck_illusion',
 	}
 
 	for u,_ in pairs(precache_list) do
 		PrecacheUnitByNameSync(u, context)
 	end
-
 
     print("Precache OK")
 end
@@ -1564,7 +1418,7 @@ function DAC:InitGameMode()
 		is_warrior11 = { ability = 'is_warrior_buff_plus_plus', condition = 9, type = 1 },
 		is_mage = { ability = 'is_mage_buff', condition = 3, type = 3 },
 		is_mage1 = { ability = 'is_mage_buff_plus', condition = 6, type = 3 },
-		is_warlock = { ability = 'is_warlock_buff', condition = 3, type = 2 },
+		is_warlock = { ability = 'is_warlock_buff', condition = 3, type = 1 },
 		is_warlock1 = { ability = 'is_warlock_buff_plus', condition = 6, type = 2 },
 		is_mech = { ability = 'is_mech_buff', condition = 2, type = 1 },
 		is_mech1 = { ability = 'is_mech_buff_plus', condition = 4, type = 1 },
@@ -1821,7 +1675,7 @@ function DAC:InitGameMode()
 		h499 = "effect/jin_dp/courier_krobeling_gold_ambient.vpcf",
 		h399 = "effect/jiangbing/1.vpcf",
 		h308 = "effect/drodo/1.vpcf",
-		h199 = "effect/gewugu/2.vpcf",
+		h199 = "effect/gewugu/3.vpcf",
 		h239 = "effect/wangyu/1.vpcf",
 	}
 	GameRules:GetGameModeEntity().courier_ground_effect_list = {
@@ -2016,6 +1870,33 @@ function DAC:InitGameMode()
 		[15] = 'item_jianrenqiu',
 		[16] = 'item_shuaxinqiu',
 		[17] = 'item_huiguang',
+	}
+
+	GameRules:GetGameModeEntity().combined_items_recipe = {
+		item_fengkuangmianju = "item_xixuemianju;item_duangun",
+		item_shengjian = "item_shengzheyiwu;item_emodaofeng",
+		item_qiangxi = "item_banjia;item_suozijia;item_zhenfenbaoshi",
+		item_longxin = "item_dafu;item_huoliqiu;item_huoliqiu",
+		item_renjia = "item_suozijia;item_kuojian",
+		item_xianfengdun = "item_huoliqiu;item_yuandun;item_zhiliaozhihuan",
+		item_shuijingjian = "item_kuojian;item_gongjizhizhua",
+		item_dapao = "item_kuojian;item_gongjizhizhua;item_emodaofeng",
+		item_anmie = "item_miyinchui;item_miyinchui;item_kuweishi",
+		item_xuanwo = "item_miyinchui;item_biaoqiang",
+		item_dadianchui = "item_miyinchui;item_biaoqiang;item_zhenfenbaoshi",
+		item_jingubang = "item_emodaofeng;item_biaoqiang;item_duangun",
+		item_recipe_tiaozhantoujin = "item_zhiliaozhihuan;item_huifuzhihuan;item_kangmodoupeng",
+		item_yinyuezhijing = "item_zhenfenbaoshi;item_zhenfenbaoshi",
+		item_jianrenqiu = "item_zhiliaozhihuan;item_xuwubaoshi",
+		item_shuaxinqiu = "item_zhiliaozhihuan;item_xuwubaoshi;item_zhiliaozhihuan;item_xuwubaoshi",
+		item_huiguang = "item_molifazhang;item_fashichangpao",
+		item_yangdao = "item_shenmifazhang;item_jixianfaqiu;item_xuwubaoshi",
+		item_hongzhang_1 = "item_molifazhang;item_wangguan",
+		item_hongzhang_2 = "item_molifazhang;item_molifazhang;item_wangguan",
+		item_hongzhang_3 = "item_molifazhang;item_molifazhang;item_molifazhang;item_wangguan",
+		item_hongzhang_4 = "item_molifazhang;item_molifazhang;item_molifazhang;item_molifazhang;item_wangguan",
+		item_hongzhang_5 = "item_molifazhang;item_molifazhang;item_molifazhang;item_molifazhang;item_molifazhang;item_wangguan",
+		item_kuangzhanfu = "item_zhiliaozhihuan;item_xuwubaoshi",
 	}
 end
 function InitHeros()
@@ -2946,6 +2827,26 @@ end
 function RestoreARound(teamid)
 	ClearARound(teamid)
 
+	--重置英雄身上的装备，使他们归属自己
+	-- local restore_items = {}
+	local hero = TeamId2Hero(teamid)
+	for slot=0,8 do
+		if hero:GetItemInSlot(slot)~= nil then
+			-- local name = hero:GetItemInSlot(slot):GetAbilityName()
+			-- table.insert(restore_items,name)
+			-- hero:RemoveItem(hero:GetItemInSlot(slot))
+			if hero:GetItemInSlot(slot):GetPurchaser():entindex() ~= hero:entindex() then
+				local name = hero:GetItemInSlot(slot):GetAbilityName()
+				hero:RemoveItem(hero:GetItemInSlot(slot))
+				hero:AddItemByName(name)
+			end
+			-- hero:GetItemInSlot(slot):SetPurchaser(hero)
+		end
+	end
+	-- for _,v in pairs(restore_items) do
+	-- 	
+	-- end
+	
 	Timers:CreateTimer(RandomFloat(0.5,1.5),function()
 		local prepare_riki = false
 		for _,v in pairs(GameRules:GetGameModeEntity().mychess[teamid]) do
@@ -4189,8 +4090,9 @@ function RemoveChess(keys)
 	if keys.is_sell == nil or keys.is_sell == true then
 		play_particle("particles/units/heroes/hero_shadowshaman/shadowshaman_voodoo.vpcf",PATTACH_ABSORIGIN_FOLLOW,target,3)
 		EmitSoundOn("Hero_Lion.Voodoo",caster)
-	end
 
+		AddAChessToChessPool(target:GetUnitName())
+	end
 
 	local is_removing_hand = false
 	if target.hand_index == nil then
@@ -4218,8 +4120,6 @@ function RemoveChess(keys)
 	end
 	FindRikiAndToggle(target)
 	CancelPickChess(caster)
-
-	AddAChessToChessPool(target:GetUnitName())
 
 	local children = target:GetChildren()
     for k,child in pairs(children) do
@@ -4532,17 +4432,26 @@ function SyncHP(hero)
 			end
 		end	
 
-		debug('玩家死亡，遗产：'..JoinTableString(gg_items))
-		-- print(JoinTableString(gg_items))
-
+		--遗产
+		local gg_item_count = 0
 		for _,gg_item in pairs(gg_items) do
-			local newItem = CreateItem( gg_item, hero, hero )
-			local drop = CreateItemOnPositionForLaunch(hero:GetAbsOrigin(), newItem )
-			local gg_item_v = Vector(RandomInt(-2800,2800),RandomInt(-2800,2800),0)
-			local gg_item_dis = (gg_item_v-hero:GetAbsOrigin()):Length2D()
-			local gg_item_t = gg_item_dis/1000
-			newItem:LaunchLootInitialHeight( false, 0, 200, gg_item_t, gg_item_v)
+			if RandomInt(1,100) > 50 then
+				if GameRules:GetGameModeEntity().combined_items_recipe[gg_item] ~= nil then
+					for _,v in pairs(string.split(GameRules:GetGameModeEntity().combined_items_recipe[gg_item],';')) do
+						RndomDropOneGGItem(v,hero)
+						gg_item_count = gg_item_count + 1
+					end
+				else
+					RndomDropOneGGItem(gg_item,hero)
+					gg_item_count = gg_item_count + 1
+				end
+			end
 		end
+		ShowCombat({
+			t = 'player_dead',
+			player = hero:GetPlayerID(),
+			num = gg_item_count,
+		})
 		
 		hero:ForceKill(false)
 		if GameRules:GetGameModeEntity().death_stack == nil then
@@ -4552,8 +4461,6 @@ function SyncHP(hero)
 				GameRules:GetGameModeEntity().death_stack = hero.steam_id..','..GameRules:GetGameModeEntity().death_stack
 			end
 		end
-
-		
 
 		--统计还有多少活着的玩家
 		local live_count = 0
@@ -6012,7 +5919,7 @@ function MirrorARound(teamid)
 					end
 				end
 			end
-			Timers:CreateTimer(0.9,function()
+			Timers:CreateTimer(1.1,function()
 				AddComboAbility(teamid)
 			end)
 		end
@@ -6145,6 +6052,7 @@ function ChessAI(u)
 				end
 			end)
 		end
+				
 
 		RemoveAbilityAndModifier(u,'jiaoxie_wudi')
 
@@ -6220,6 +6128,15 @@ function ChessAI(u)
 						 		Queue = 0 --Optional.  Used for queueing up abilities
 						 	}
 							ExecuteOrderFromTable(newOrder)
+							if a == 'lina_laguna_blade' then
+								local level = u:FindAbilityByName('lina_laguna_blade'):GetLevel()
+								InvisibleUnitCast({
+									caster = u,
+									ability = 'give_fiery_soul',
+									level = level,
+									unluckydog = u,
+								})
+							end
 							return RandomFloat(0.5,2) + ai_delay
 						end
 					elseif GameRules:GetGameModeEntity().ability_behavior_list[a] == 2 then
@@ -6823,8 +6740,8 @@ function FindUnluckyDogRandom(u)
 	local try_count = 0 
 
 	while unluckydog == nil and try_count < 10000 do
-		local random = RandomInt(1,table.maxn(GameRules:GetGameModeEntity().to_be_destory_list))
-		local unit = GameRules:GetGameModeEntity().to_be_destory_list[random]
+		local random = RandomInt(1,table.maxn(GameRules:GetGameModeEntity().to_be_destory_list[team]))
+		local unit = GameRules:GetGameModeEntity().to_be_destory_list[team][random]
 		if unit ~= nil and unit.y_x and unit:IsNull() == false and unit:IsAlive()==true and unit.team_id ~= u.team_id and unit:IsInvisible() == false then
 			if unluckydog == nil then
 				unluckydog = unit
@@ -7847,6 +7764,25 @@ function show_damage(keys)
 		attacker:SetMana(attacker:GetMana()+mana_get)
 	end
 
+	--术士吸血
+	if attacker ~= nil then
+		if attacker:FindModifierByName("modifier_is_warlock_buff") ~= nil then
+			AttackHeal({
+				attacker = attacker,
+				damage = damage,
+				per = 0.2,
+			})
+			play_particle("particles/generic_gameplay/generic_lifesteal.vpcf",PATTACH_OVERHEAD_FOLLOW,attacker,2)
+		end
+		if attacker:FindModifierByName("modifier_is_warlock_buff_plus") ~= nil then
+			AttackHeal({
+				attacker = attacker,
+				damage = damage,
+				per = 0.2,
+			})
+		end
+	end
+
 	if GameRules:GetGameModeEntity().show_damage == true then
 		if attacker:GetTeam() == 4 then
 			AMHC:CreateNumberEffect(caster,damage,2,AMHC.MSG_DAMAGE,"red",9)
@@ -8380,8 +8316,7 @@ function ChessTechBomb(keys)
 	local x = Vector2X(p,at_team)
 
 	if (GameRules:GetGameModeEntity().unit[at_team][y..'_'..x] ~= nil) then
-		debug('炸药桶的位置不是空格子')
-		return
+		p = FindEmptyGridAtUnit(caster)
 	end
 
 	--创建一个炸弹
@@ -9205,7 +9140,7 @@ function TinyTouzhi(keys)
 
 	local team_id = target.at_team_id or target.team_id
 	local v = FindFarthestCanAttackEnemyEmptyGrid(caster)
-	if v == nil or (v-target:GetAbsOrigin()):Length2D() < 384 then
+	if v == nil or (v-target:GetAbsOrigin()):Length2D() < 400 then
 		v = FindFarthestEmptyGrid(target)
 	end
 
@@ -9219,7 +9154,7 @@ function TinyTouzhi(keys)
 	Timers:CreateTimer(stun_duration+0.1,function()
 		ApplyDamageInRadius({
 			caster = caster,
-			team = 2,
+			team = caster.team_id,
 			radius = radius,
 			role = 2,
 			position = target:GetAbsOrigin(),
@@ -9482,7 +9417,7 @@ function SendYingdiData(t,dur)
 	    insertdata["gold"] = GameRules:GetGameModeEntity().stat_info[user]['gold']
 	    insertdata["candy"] = GameRules:GetGameModeEntity().stat_info[user]['candy']
 	    insertdata["duration"] = GameRules:GetGameModeEntity().stat_info[user]['duration']
-	    table.insert(max_data['players'],insertdata)
+	    table.insert(yingdi_data['players'],insertdata)
 	end
 	SendHTTPPost(yingdi_url,yingdi_data)
 end
@@ -9512,7 +9447,7 @@ function SendPWData(t,dur)
 	    insertdata["gold"] = GameRules:GetGameModeEntity().stat_info[user]['gold']
 	    insertdata["candy"] = GameRules:GetGameModeEntity().stat_info[user]['candy']
 	    insertdata["duration"] = GameRules:GetGameModeEntity().stat_info[user]['duration']
-	    table.insert(max_data['players'],insertdata)
+	    table.insert(pw_data['players'],insertdata)
 	end
 	SendHTTPPost(pw_url,pw_data)
 end
@@ -10299,4 +10234,13 @@ function ShowCourierEffect(hero,type)
 			})
 		end
 	end
+end
+
+function RndomDropOneGGItem(gg_item_one,gg_item_hero)
+	local newItem = CreateItem( gg_item_one, gg_item_hero, gg_item_hero )
+	CreateItemOnPositionForLaunch(gg_item_hero:GetAbsOrigin(), newItem )
+	local gg_item_v = CenterVector(RandomInt(6,13)) + Vector(RandomInt(-512,512),RandomInt(-512,512),0)
+	local gg_item_dis = (gg_item_v-gg_item_hero:GetAbsOrigin()):Length2D()
+	local gg_item_t = gg_item_dis/1000
+	newItem:LaunchLootInitialHeight( false, 0, 400, gg_item_t, gg_item_v)
 end
