@@ -21,9 +21,27 @@ require('pathfinder/search/dijkstra')
 require('pathfinder/search/jps')
 require('jump')
 require('status_resistance')
+require('base64')
+require('aeslua')
+local sha2 = require('sha2')
 LinkLuaModifier("modifier_jump", "jump.lua", LUA_MODIFIER_MOTION_BOTH)
 LinkLuaModifier("modifier_status_resistance", "status_resistance.lua", LUA_MODIFIER_MOTION_NONE)
-
+function SendAmazonData(ctx)
+	ctx = '123456'
+	local data = {
+	  StreamName = "report_reciver",
+	  Data = to_base64(ctx),
+	  PartitionKey = RandomInt(1,1000000),
+	}
+	local body_data = json.encode(data)
+	local method = 'POST'
+	local service = 'kinesis'
+	local host = 'kinesis.us-east-2.amazonaws.com'
+	local region = 'us-east-2'
+	local endpoint = 'https://kinesis.us-east-2.amazonaws.com'
+	local request_parameters = ""
+end
+SendAmazonData('123456')
 function Precache( context )
 	local mxx={
 		--以前的模型和特效
@@ -738,8 +756,10 @@ function DAC:InitGameMode()
     CustomGameEventManager:RegisterListener("preview_effect", Dynamic_Wrap(DAC, "OnPreviewEffect") )
     CustomGameEventManager:RegisterListener("suggest_liuju", Dynamic_Wrap(DAC, "OnSuggestLiuju") )
     CustomGameEventManager:RegisterListener("set_auto_combine", Dynamic_Wrap(DAC, "OnSetAutoCombine") )
+    CustomGameEventManager:RegisterListener("select_difficulty", Dynamic_Wrap(DAC, "OnSelectDifficulty") )
 
     GameRules:GetGameModeEntity().battle_round = 1
+    GameRules:GetGameModeEntity().difficulty = 2
     GameRules:GetGameModeEntity().steamidlist = ''
     GameRules:GetGameModeEntity().steamidlist_heroindex = ''
     GameRules:GetGameModeEntity().steamid2playerid = {}
@@ -1418,7 +1438,7 @@ function DAC:InitGameMode()
 		is_warrior11 = { ability = 'is_warrior_buff_plus_plus', condition = 9, type = 1 },
 		is_mage = { ability = 'is_mage_buff', condition = 3, type = 3 },
 		is_mage1 = { ability = 'is_mage_buff_plus', condition = 6, type = 3 },
-		is_warlock = { ability = 'is_warlock_buff', condition = 3, type = 1 },
+		is_warlock = { ability = 'is_warlock_buff', condition = 3, type = 2 },
 		is_warlock1 = { ability = 'is_warlock_buff_plus', condition = 6, type = 2 },
 		is_mech = { ability = 'is_mech_buff', condition = 2, type = 1 },
 		is_mech1 = { ability = 'is_mech_buff_plus', condition = 4, type = 1 },
@@ -1885,7 +1905,7 @@ function DAC:InitGameMode()
 		item_xuanwo = "item_miyinchui;item_biaoqiang",
 		item_dadianchui = "item_miyinchui;item_biaoqiang;item_zhenfenbaoshi",
 		item_jingubang = "item_emodaofeng;item_biaoqiang;item_duangun",
-		item_recipe_tiaozhantoujin = "item_zhiliaozhihuan;item_huifuzhihuan;item_kangmodoupeng",
+		item_tiaozhantoujin = "item_zhiliaozhihuan;item_huifuzhihuan;item_kangmodoupeng",
 		item_yinyuezhijing = "item_zhenfenbaoshi;item_zhenfenbaoshi",
 		item_jianrenqiu = "item_zhiliaozhihuan;item_xuwubaoshi",
 		item_shuaxinqiu = "item_zhiliaozhihuan;item_xuwubaoshi;item_zhiliaozhihuan;item_xuwubaoshi",
@@ -1929,8 +1949,10 @@ function InitHeros()
 	GameRules:GetGameModeEntity().cloudlineup = {}
 	if PlayerResource:GetPlayerCount() == 1 then
 		--单人获取云对战列表
+		prt('#text_difficulty_select')
+		prt('#text_difficulty_'..GameRules:GetGameModeEntity().difficulty)
 		local url = "https://autochess.ppbizon.com/lineup/get?hehe="..RandomInt(1,10000)
-		SendHTTP(url.."&from=InitHeros", function(t)
+		SendHTTP(url.."&from=InitHeros&difficulty="..GameRules:GetGameModeEntity().difficulty, function(t)
 			prt('LOAD CLOUD LINEUP OK!')
 			GameRules:GetGameModeEntity().cloudlineup = t.data
 		end)
@@ -3240,6 +3262,11 @@ end
 function Draw5ChessAndShow(team_id, unlock)
 	local h = TeamId2Hero(team_id)
 	if h.chesslock == true then
+		CustomGameEventManager:Send_ServerToTeam(h:GetTeam(),"show_draw_card",{
+			key = GetClientKey(h:GetTeam()),
+			cards = nil,
+			curr_money = h:GetMana(),
+		})
 		return
 	end
 	--把上次剩的洗回棋库
@@ -4509,7 +4536,7 @@ function SyncHP(hero)
 							
 							--展示结束面板，结束游戏！
 							PostGame()
-							Timers:CreateTimer(3,function()
+							Timers:CreateTimer(5,function()
 								GameRules:SetGameWinner(last_hero:GetTeam())
 							end)
 							Timers:CreateTimer(RandomFloat(0,1),function()
@@ -4521,6 +4548,11 @@ function SyncHP(hero)
 							Timers:CreateTimer(RandomFloat(2,3),function()
 								SendPWData(t,dur)
 							end)
+							if t.is_repost == true then
+								Timers:CreateTimer(RandomFloat(3,4),function()
+									SendRepost(t,dur)
+								end)
+							end
 						else
 							prt('POST GAME ERROR : '..t.err)
 							PostGame()
@@ -4539,7 +4571,7 @@ function SyncHP(hero)
 					end)
 				else
 					PostGame()
-					Timers:CreateTimer(3,function()
+					Timers:CreateTimer(5,function()
 						GameRules:SetGameWinner(last_hero:GetTeam())
 						
 					end)
@@ -6058,7 +6090,7 @@ function ChessAI(u)
 
 		local start_delay = 0
 		if u:FindAbilityByName('is_assassin') ~= nil and GameRules:GetGameModeEntity().chess_ability_list[u:GetUnitName()] ~= nil then
-			start_delay = 1
+			start_delay = 0.5
 		end
 
 		u.aitimer = Timers:CreateTimer(RandomFloat(0.5,2)+start_delay, function()
@@ -6112,7 +6144,7 @@ function ChessAI(u)
 			--释放技能：11=新沙王，0=被动技能，1=单位目标，2=无目标，3=点目标，4=自己目标，5=近身单位目标，6=先知在地图边缘招树人，7=随机友军目标（嗜血术），8=随机周围空地目标（炸弹人），9=血量百分比最低的队友，10=等级最高的敌人（末日），11=沙王戳最远的能打到敌人的格子，12=小小投掷身边的敌人到最远的格子，13=自己为中心的点目标,14=pom特殊目标
 			local a = GameRules:GetGameModeEntity().chess_ability_list[u:GetUnitName()]
 			--决定是否要放技能
-			if a ~= nil and u:FindModifierByName('modifier_doom_bringer_doom') == nil and u:FindModifierByName('modifier_hexxed') == nil and u:FindModifierByName('modifier_shadow_shaman_voodoo') == nil and u:FindModifierByName('modifier_medusa_stone_gaze_stone') == nil and u:IsSilenced() == false then
+			if a ~= nil and u:FindModifierByName('modifier_doom_bringer_doom') == nil and IsHexxed(u) == false and u:FindModifierByName('modifier_medusa_stone_gaze_stone') == nil and u:IsSilenced() == false then
 				if u:GetMana() >= 100 and GameRules:GetGameModeEntity().ability_behavior_list[a] ~= 0 and u:FindAbilityByName(a):IsCooldownReady() == true then
 					--有蓝，释放技能
 					if GameRules:GetGameModeEntity().ability_behavior_list[a] == 1 then
@@ -6137,6 +6169,12 @@ function ChessAI(u)
 									unluckydog = u,
 								})
 							end
+							if a == 'shadow_shaman_voodoo' then
+								TriggerHex({
+									target = unluckydog
+								})
+							end
+							
 							return RandomFloat(0.5,2) + ai_delay
 						end
 					elseif GameRules:GetGameModeEntity().ability_behavior_list[a] == 2 then
@@ -6161,6 +6199,27 @@ function ChessAI(u)
 									caster = u,
 									ability_level = u:FindAbilityByName(a):GetLevel(),
 								})
+							end
+							if a == 'dragon_knight_elder_dragon_form' then
+								
+								local dragon_level = u:FindAbilityByName('dragon_knight_elder_dragon_form'):GetLevel()
+
+								if dragon_level == 2 then
+									-- prt('变龙--->'..dragon_level)
+									Timers:CreateTimer(1,function()
+										u:SetRangedProjectileName("effect/dragon/baseattack/2.vpcf")
+										-- u:SetOriginalModel("models/items/dragon_knight/fireborn_dragon/fireborn_dragon.vmdl")
+										-- u:SetModel("models/items/dragon_knight/fireborn_dragon/fireborn_dragon.vmdl")
+									end)
+								end
+								if dragon_level == 3 then
+									-- prt('变龙--->'..dragon_level)
+									Timers:CreateTimer(1,function()
+										u:SetRangedProjectileName("effect/dragon/baseattack/3.vpcf")
+										-- u:SetOriginalModel("models/items/dragon_knight/oblivion_blazer_dragon/oblivion_blazer_dragon.vmdl")
+										-- u:SetModel("models/items/dragon_knight/oblivion_blazer_dragon/oblivion_blazer_dragon.vmdl")
+									end)
+								end
 							end
 
 							return RandomFloat(0.5,2) + ai_delay
@@ -6832,12 +6891,12 @@ function FindBestSunderFriend(u)
 			if per > hp_per_best then
 				unluckydog = unit
 				hp_per_best = per
-				hp_per = hp
+				hp_best = hp
 			end
 			if per == hp_per_best and hp < hp_best then
 				unluckydog = unit
 				hp_per_best = per
-				hp_per = hp
+				hp_best = hp
 			end
 		end
 	end
@@ -7770,7 +7829,7 @@ function show_damage(keys)
 			AttackHeal({
 				attacker = attacker,
 				damage = damage,
-				per = 0.2,
+				per = 0.15,
 			})
 			play_particle("particles/generic_gameplay/generic_lifesteal.vpcf",PATTACH_OVERHEAD_FOLLOW,attacker,2)
 		end
@@ -7778,7 +7837,7 @@ function show_damage(keys)
 			AttackHeal({
 				attacker = attacker,
 				damage = damage,
-				per = 0.2,
+				per = 0.25,
 			})
 		end
 	end
@@ -7824,12 +7883,14 @@ function RenJia(keys)
 	if damage <= 0 then
 		return
 	end
-    ApplyDamage({
-    	victim=attacker,
-    	attacker=caster,
-    	damage_type=DAMAGE_TYPE_PURE,
-    	damage=damage
-    })
+	Timers:CreateTimer(0.1,function()
+		ApplyDamage({
+	    	victim=attacker,
+	    	attacker=caster,
+	    	damage_type=DAMAGE_TYPE_PURE,
+	    	damage=damage
+	    })
+	end)
 end
 --电锤技能
 function DianChui(event)
@@ -8144,7 +8205,7 @@ function TriggerRefreshOrb(u)
 		return 
 	end
 
-	for slot=0,8 do
+	for slot=0,5 do
 		if u:GetItemInSlot(slot)~= nil then
 			local ability = u:GetItemInSlot(slot)
 			local name = ability:GetAbilityName()
@@ -8170,7 +8231,7 @@ function TriggerSheepStick(u)
 		return 
 	end
 
-	for slot=0,8 do
+	for slot=0,5 do
 		if u:GetItemInSlot(slot)~= nil then
 			local ability = u:GetItemInSlot(slot)
 			local name = ability:GetAbilityName()
@@ -8190,6 +8251,7 @@ function TriggerSheepStick(u)
 					 		Queue = 0 
 					 	}
 						ExecuteOrderFromTable(newOrder)
+						RemoveAllKnightBuff(dog)
 					end
 				end
 				return 1
@@ -8203,7 +8265,7 @@ function TriggerTiaodao(u)
 		return 
 	end
 
-	for slot=0,8 do
+	for slot=0,5 do
 		if u:GetItemInSlot(slot)~= nil then
 			local ability = u:GetItemInSlot(slot)
 			local name = ability:GetAbilityName()
@@ -8262,7 +8324,7 @@ function TriggerDagon(u)
 	if u:FindModifierByName("modifier_item_hongzhang") == nil then
 		return 
 	end
-	for slot=0,8 do
+	for slot=0,5 do
 		if u:GetItemInSlot(slot)~= nil then
 			local ability = u:GetItemInSlot(slot)
 			local name = ability:GetAbilityName()
@@ -9484,6 +9546,37 @@ function SendMaxData(t,dur)
 	SendHTTPPost(max_url,max_data)
 end
 
+function SendRepost(t,dur)
+	local max_url = "http://repost.ppbizon.com/postdata"
+	local max_data = {
+	    key=GetDedicatedServerKeyV2('repost'),
+	    version="2.0",
+	    match_id=t.end_time,
+	    end_time=t.end_time,
+	    duration=dur,
+	    players={},
+	    chess_detail=GameRules:GetGameModeEntity().upload_detail_stat,
+	}
+
+	for user,data in pairs(t.mmr_info) do
+	    local insertdata = {}
+	    insertdata["account_id"] = user
+	    insertdata["rank"] = data.rank
+	    insertdata["total"] = data.total
+	    insertdata["level"] = data.level
+	    insertdata["chess"] = GameRules:GetGameModeEntity().stat_info[user]['chess_lineup']
+	    insertdata["win_round"] = GameRules:GetGameModeEntity().stat_info[user]['win_round']
+	    insertdata["lose_round"] = GameRules:GetGameModeEntity().stat_info[user]['lose_round']
+	    insertdata["kills"] = GameRules:GetGameModeEntity().stat_info[user]['kills']
+	    insertdata["deaths"] = GameRules:GetGameModeEntity().stat_info[user]['deaths']
+	    insertdata["gold"] = GameRules:GetGameModeEntity().stat_info[user]['gold']
+	    insertdata["candy"] = GameRules:GetGameModeEntity().stat_info[user]['candy']
+	    insertdata["duration"] = GameRules:GetGameModeEntity().stat_info[user]['duration']
+	    table.insert(max_data['players'],insertdata)
+	end
+	SendHTTPPost(max_url,max_data)
+end
+
 function SendHTTPPost(url,game_data)
     local req = CreateHTTPRequestScriptVM("POST",url)
     req:SetHTTPRequestHeaderValue("Content-Type", "application/json;charset=UTF-8")
@@ -10243,4 +10336,50 @@ function RndomDropOneGGItem(gg_item_one,gg_item_hero)
 	local gg_item_dis = (gg_item_v-gg_item_hero:GetAbsOrigin()):Length2D()
 	local gg_item_t = gg_item_dis/1000
 	newItem:LaunchLootInitialHeight( false, 0, 400, gg_item_t, gg_item_v)
+end
+
+function OnKnightBuffCreate(keys)
+	local caster = keys.caster
+	if IsHexxed(caster) == true then
+		RemoveAllKnightBuff(caster)
+	end
+end
+
+function RemoveAllKnightBuff(u)
+	if u:FindModifierByName('modifier_is_knight_buff_2') ~= nil then
+		u:RemoveModifierByName('modifier_is_knight_buff_2')
+	end
+	if u:FindModifierByName('modifier_is_knight_buff_2_plus') ~= nil then
+		u:RemoveModifierByName('modifier_is_knight_buff_2_plus')
+	end
+	if u:FindModifierByName('modifier_is_knight_buff_2_plus_plus') ~= nil then
+		u:RemoveModifierByName('modifier_is_knight_buff_2_plus_plus')
+	end
+end
+
+function TriggerHex(keys)
+	local target = keys.target
+	if IsUnitExist(target) then
+		RemoveAllKnightBuff(target)
+	end
+end
+
+function IsHexxed(u)
+	if IsUnitExist(u) == false then
+		return false
+	end
+	if u:FindModifierByName('modifier_hexxed') ~= nil then
+		return true
+	end
+	if u:FindModifierByName('modifier_shadow_shaman_voodoo') ~= nil then
+		return true
+	end
+	if u:FindModifierByName('modifier_lion_voodoo') ~= nil then
+		return true
+	end
+	return false
+end
+
+function DAC:OnSelectDifficulty(keys)
+	GameRules:GetGameModeEntity().difficulty = keys.difficulty or 2
 end
