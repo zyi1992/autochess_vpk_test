@@ -8659,23 +8659,23 @@
 			{
 				"Wearable1"
 				{
-					"ItemDef"	"7789"
+					"ItemDef"	"7740"
 				}
 				"Wearable2"
 				{
-					"ItemDef"	"7790"
+					"ItemDef"	"7947"
 				}
 				"Wearable3"
 				{
-					"ItemDef"	"7791"
+					"ItemDef"	"5337"
 				}
 				"Wearable4"
 				{
-					"ItemDef"	"7792"
+					"ItemDef"	"7878"
 				}
 				"Wearable5"
 				{
-					"ItemDef"	"7793"
+					"ItemDef"	"7950"
 				}
 			}
 		}
@@ -8779,23 +8779,23 @@
 			{
 				"Wearable1"
 				{
-					"ItemDef"	"7789"
+					"ItemDef"	"7740"
 				}
 				"Wearable2"
 				{
-					"ItemDef"	"7790"
+					"ItemDef"	"7947"
 				}
 				"Wearable3"
 				{
-					"ItemDef"	"7791"
+					"ItemDef"	"5337"
 				}
 				"Wearable4"
 				{
-					"ItemDef"	"7792"
+					"ItemDef"	"7878"
 				}
 				"Wearable5"
 				{
-					"ItemDef"	"7793"
+					"ItemDef"	"7950"
 				}
 			}
 		}

@@ -26,22 +26,7 @@ require('aeslua')
 local sha2 = require('sha2')
 LinkLuaModifier("modifier_jump", "jump.lua", LUA_MODIFIER_MOTION_BOTH)
 LinkLuaModifier("modifier_status_resistance", "status_resistance.lua", LUA_MODIFIER_MOTION_NONE)
-function SendAmazonData(ctx)
-	ctx = '123456'
-	local data = {
-	  StreamName = "report_reciver",
-	  Data = to_base64(ctx),
-	  PartitionKey = RandomInt(1,1000000),
-	}
-	local body_data = json.encode(data)
-	local method = 'POST'
-	local service = 'kinesis'
-	local host = 'kinesis.us-east-2.amazonaws.com'
-	local region = 'us-east-2'
-	local endpoint = 'https://kinesis.us-east-2.amazonaws.com'
-	local request_parameters = ""
-end
-SendAmazonData('123456')
+
 function Precache( context )
 	local mxx={
 		--以前的模型和特效
@@ -1016,7 +1001,7 @@ function DAC:InitGameMode()
 		[12] = {},
 		[13] = {},
 	}
-	GameRules:GetGameModeEntity().effect_list = "e101,e102,e103,e104,e107,e108,e111,e112,e113,e114,e201,e202,e203,e205,e210,e213,e214,e301,e302,e303,e304,e305,e306,e308,e309,e311,e312,e313,e315,e317,e319,e320,e321,e401,e402,e403,e404,e405,e406,e407,e408,e409,e410,e451,e452,e453,e454,e455,e456,e457,e458,e459"
+	GameRules:GetGameModeEntity().effect_list = "e101,e102,e103,e104,e107,e108,e111,e112,e113,e114,e201,e202,e203,e205,e210,e213,e214,e301,e302,e303,e304,e305,e306,e308,e309,e311,e312,e313,e315,e317,e319,e320,e321,e322,e401,e402,e403,e404,e405,e406,e407,e408,e409,e410,e451,e452,e453,e454,e455,e456,e457,e458,e459"
 
 	GameRules:GetGameModeEntity().chess_list_by_mana = {
 		[1] = {'chess_tusk','chess_axe','chess_eh','chess_om','chess_clock','chess_ss','chess_bh','chess_bat','chess_dr','chess_tk','chess_am','chess_tiny','chess_mars'}, --'chess_slark'
@@ -1920,6 +1905,7 @@ function DAC:InitGameMode()
 	}
 end
 function InitHeros()
+	GetUTCTime()
 	--拼接要向服务器发送的steamid数据
 	for pid,sid in pairs(GameRules:GetGameModeEntity().playerid2steamid) do
 		GameRules:GetGameModeEntity().upload_detail_stat[sid] = {}
@@ -2726,36 +2712,36 @@ function StartAPrepareRound()
 					AddAbilityAndSetLevel(hero,'summon_hero',level)
 				end
 
-				--给蓝
-				local mana = GameRules:GetGameModeEntity().battle_round
-				if mana> 5 then
-					mana = 5
-				end
-
-				local lixi = math.floor(v:GetMana()/10)
-				if lixi > 5 then
-					lixi = 5
-				end
-				mana = mana + lixi
-
-				local anwei = math.floor(((v.lose_streak or 0)+3)/2 ) - 2
-				if anwei < 0 then
-					anwei = 0
-				end
-				if anwei > 3 then
-					anwei = 3
-				end
-				mana = mana + anwei
-
-				local jiangli = math.floor(((v.win_streak or 0)+3)/2 ) - 2
-				if jiangli < 0 then
-					jiangli = 0
-				end
-				if jiangli > 3 then
-					jiangli = 3
-				end
-				mana = mana + jiangli
 				Timers:CreateTimer(1,function()
+					--给蓝
+					local mana = GameRules:GetGameModeEntity().battle_round
+					if mana> 5 then
+						mana = 5
+					end
+
+					local lixi = math.floor(v:GetMana()/10)
+					if lixi > 5 then
+						lixi = 5
+					end
+					mana = mana + lixi
+
+					local anwei = math.floor(((v.lose_streak or 0)+3)/2 ) - 2
+					if anwei < 0 then
+						anwei = 0
+					end
+					if anwei > 3 then
+						anwei = 3
+					end
+					mana = mana + anwei
+
+					local jiangli = math.floor(((v.win_streak or 0)+3)/2 ) - 2
+					if jiangli < 0 then
+						jiangli = 0
+					end
+					if jiangli > 3 then
+						jiangli = 3
+					end
+					mana = mana + jiangli
 					AddMana(v, mana)
 				end)
 				Timers:CreateTimer(0.5,function()
@@ -3266,7 +3252,9 @@ function Draw5ChessAndShow(team_id, unlock)
 			key = GetClientKey(h:GetTeam()),
 			cards = nil,
 			curr_money = h:GetMana(),
+			auto_unlock = true,
 		})
+		h.chesslock = false
 		return
 	end
 	--把上次剩的洗回棋库
@@ -6848,6 +6836,18 @@ function FindUnluckyDog190(u)
 	end
 	return unluckydog
 end
+function FindUnluckyDog250(u)
+	local unluckydog = nil
+	local try_count = 0
+	while unluckydog == nil and try_count < 100 do
+		local uu = GameRules:GetGameModeEntity().to_be_destory_list[u.at_team_id or u.team_id][RandomInt(1,table.maxn(GameRules:GetGameModeEntity().to_be_destory_list[u.at_team_id or u.team_id]))]
+		if uu ~= nil and uu:IsNull() == false and uu:IsAlive() == true and uu.team_id ~= u.team_id and (uu:GetAbsOrigin()-u:GetAbsOrigin()):Length2D() < 250 - uu:GetHullRadius() then
+			unluckydog = uu
+		end
+		try_count = try_count + 1
+	end
+	return unluckydog
+end
 function FindUnluckyDogRandomFriend(u)
 	local unluckydog = nil
 	local try_count = 0
@@ -7441,7 +7441,7 @@ function DAC:OnPlayerChat(keys)
 	
 
 	--测试命令
-	if string.find(keys.text,"^e%w%w%w$") ~= nil and GameRules:GetGameModeEntity().myself then
+	if string.find(keys.text,"^e%w%w%w$") ~= nil and GameRules:GetGameModeEntity().myself == true then
 		if hero.effect ~= nil then
 			hero:RemoveAbility(hero.effect)
 			hero:RemoveModifierByName('modifier_texiao_star')
@@ -8605,7 +8605,7 @@ end
 function FindAClosestEnemyAndAttack(u)
 	if u:HasAbility('mars_bulwark') then
 		--玛尔斯
-		local target = FindUnluckyDog190(u)
+		local target = FindUnluckyDog250(u)
 		if target == nil then
 			return nil
 		end
@@ -10382,4 +10382,123 @@ end
 
 function DAC:OnSelectDifficulty(keys)
 	GameRules:GetGameModeEntity().difficulty = keys.difficulty or 2
+end
+
+function string.fromhex(str)
+    return (str:gsub('..', function(cc)
+        return string.char(tonumber(cc, 16))
+    end))
+end
+
+function string.tohex(str)
+    return (str:gsub('.', function (c)
+        return string.format('%02X',string.byte(c))
+    end))
+end
+function string.split(s, sep)
+    if sep == nil then
+            sep = "%s"
+    end
+    local t={} ; i=1
+    for str in string.gmatch(s, "([^"..sep.."]+)") do
+            t[i] = str
+            i = i + 1
+    end
+    return t
+end
+function sign(key, msg)
+	return sha2.hmac(sha2.sha256,key,msg)
+end
+function getSignatureKey(key, dateStamp, regionName, serviceName)
+    kDate = sign('AWS4'..key, dateStamp)
+    kRegion = sign(kDate, regionName)
+    kService = sign(kRegion, serviceName)
+    kSigning = sign(kService, 'aws4_request')
+    return kSigning
+end
+function GetUTCTime()
+	local req = CreateHTTPRequestScriptVM('GET','http://autochess.ppbizon.com/gettime')
+	req:SetHTTPRequestAbsoluteTimeoutMS(20000)
+
+    req:Send(function(res)
+        local t = json.decode(res.Body)
+        if t.err == 0 then
+			local amzdate = string.format(
+			    '%s%s%sT%s%s%sZ',
+			    t.year, t.month, t.date, t.hour, t.minute, t.second
+			)
+			local datestamp = string.format(
+			    '%s%s%s',
+			    t.year, t.month, t.date
+			)
+			SendAmazonData('123456',amzdate,datestamp)
+		end
+    end)
+end
+function SendAmazonData(ctx,amzdate,datestamp)
+	prt('SendAmazonData')
+	ctx = {context = 'amazon', key = 'ilongyuan'}
+	local data = {
+	  StreamName = "report_reciver",
+	  Data = to_base64(json.encode(ctx)),
+	  PartitionKey = RandomInt(1,1000000),
+	}
+	local body_data = json.encode(data)
+	local method = 'POST'
+	local service = 'kinesis'
+	local host = 'kinesis.us-east-2.amazonaws.com'
+	local region = 'us-east-2'
+	local endpoint = 'https://kinesis.us-east-2.amazonaws.com'
+	-- local endpoint = 'http://39.106.23.42:9696/postdata'
+	local request_parameters = ""
+	local enc_AWS_ACCESS_KEY_ID = "03FAE7D6D1B989EAD761DFDEE153147317FD60EB75113C7B859D842A31B69E0E"
+	local AWS_ACCESS_KEY_ID = aeslua.decrypt(GetDedicatedServerKeyV2('bsl,bgbxh'),string.fromhex(enc_AWS_ACCESS_KEY_ID))
+	local access_key = AWS_ACCESS_KEY_ID
+	if GameRules:GetGameModeEntity().myself == true then
+		prt('access_key')
+		prt(access_key)
+	end
+	local enc_AWS_SECRET_ACCESS_KEY = '5FE9D24D6992244A2730501080A5B3A63F91E94090763C67C0FEB79A2D86B83E1F7FC1A15C993FB11AD31BB9F1D284FB'
+	local AWS_SECRET_ACCESS_KEY = aeslua.decrypt(GetDedicatedServerKeyV2('bsl,bgbxh'),string.fromhex(enc_AWS_SECRET_ACCESS_KEY))
+	local secret_key = AWS_SECRET_ACCESS_KEY
+	if GameRules:GetGameModeEntity().myself == true then
+		prt('secret_key')
+		prt(secret_key)
+	end
+	local canonical_uri = '/'
+	local canonical_querystring = request_parameters
+	local canonical_headers = 'host:'..host..'\n'..'x-amz-date:'..amzdate..'\n'
+	local signed_headers = 'host;x-amz-date'
+	local payload_hash = sha2.sha256(body_data)
+	local canonical_request = method..'\n'..canonical_uri..'\n'..canonical_querystring..'\n'.. canonical_headers..'\n'..signed_headers..'\n'..payload_hash
+	prt('canonical_request')
+
+	local algorithm = 'AWS4-HMAC-SHA256'
+	local credential_scope = datestamp..'/'..region..'/'..service..'/'..'aws4_requeest'
+	local string_to_sign = algorithm..'\n'..amzdate..'\n'..credential_scope..'\n'..sha2.sha256(canonical_request)
+	prt('string_to_sign'..string_to_sign)
+
+	local signing_key = getSignatureKey(secret_key, datestamp, region, service)
+	prt('signing_key'..signing_key)
+	local signature = sha2.hmac(sha2.sha256,signing_key,string_to_sign)
+	prt('signature'..signature)
+	local authorization_header = algorithm..' '..'Credential='..access_key..'/'..credential_scope..', '..'SignedHeaders='..signed_headers..', '..'Signature='..signature
+
+	local request_url = endpoint..'/'
+	-- local request_url = endpoint
+
+	prt('ready for request')
+	local req = CreateHTTPRequestScriptVM("POST",request_url)
+    req:SetHTTPRequestHeaderValue("x-amz-date", amzdate)
+    req:SetHTTPRequestHeaderValue("Content-Type", "application/x-amz-json-1.1")
+    req:SetHTTPRequestHeaderValue("X-Amz-Target", "Kinesis_20131202.PutRecord")
+    req:SetHTTPRequestHeaderValue("Authorization", authorization_header)
+    req:SetHTTPRequestGetOrPostParameter("data",body_data)
+    req:Send(function(res)
+    	prt('response')
+    	prt(res)
+        if res.StatusCode ~= 200 or not res.Body then
+            return
+        end
+    end)
 end
