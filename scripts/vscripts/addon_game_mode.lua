@@ -21,7 +21,7 @@ require('pathfinder/search/dijkstra')
 require('pathfinder/search/jps')
 require('jump')
 require('status_resistance')
-require('base64')
+local base64 = require('base64')
 require('aeslua')
 local sha2 = require('sha2')
 LinkLuaModifier("modifier_jump", "jump.lua", LUA_MODIFIER_MOTION_BOTH)
@@ -659,6 +659,7 @@ function Precache( context )
 		--
 		chess_zeus = 'zeus_thunder',
 		chess_mars = 'mars_bulwark',
+		chess_gs = 'grimstroke_soul_chain',
 	}
 
 	for u,_ in pairs(precache_list) do
@@ -742,6 +743,7 @@ function DAC:InitGameMode()
     CustomGameEventManager:RegisterListener("suggest_liuju", Dynamic_Wrap(DAC, "OnSuggestLiuju") )
     CustomGameEventManager:RegisterListener("set_auto_combine", Dynamic_Wrap(DAC, "OnSetAutoCombine") )
     CustomGameEventManager:RegisterListener("select_difficulty", Dynamic_Wrap(DAC, "OnSelectDifficulty") )
+    CustomGameEventManager:RegisterListener("request_pause_game", Dynamic_Wrap(DAC, "OnPauseGame") )
 
     GameRules:GetGameModeEntity().battle_round = 1
     GameRules:GetGameModeEntity().difficulty = 2
@@ -1005,7 +1007,7 @@ function DAC:InitGameMode()
 
 	GameRules:GetGameModeEntity().chess_list_by_mana = {
 		[1] = {'chess_tusk','chess_axe','chess_eh','chess_om','chess_clock','chess_ss','chess_bh','chess_bat','chess_dr','chess_tk','chess_am','chess_tiny','chess_mars'}, --'chess_slark'
-		[2] = {'chess_bm','chess_jugg','chess_shredder','chess_puck','chess_ck','chess_slardar','chess_luna','chess_qop','chess_wd','chess_cm','chess_fur','chess_morph','chess_pom'}, --'chess_riki','chess_sk'
+		[2] = {'chess_bm','chess_jugg','chess_shredder','chess_puck','chess_ck','chess_slardar','chess_luna','chess_qop','chess_wd','chess_cm','chess_fur','chess_morph','chess_pom'}, --'chess_riki','chess_sk','chess_gs'
 		[3] = {'chess_ok','chess_razor','chess_wr','chess_abaddon','chess_sniper','chess_sf','chess_viper','chess_lyc','chess_pa','chess_veno','chess_lina','chess_tb','chess_tp'}, --'chess_fv'
 		[4] = {'chess_kunkka','chess_doom','chess_troll','chess_nec','chess_ta','chess_medusa','chess_disruptor','chess_ga','chess_dk','chess_light','chess_ld'},
 		[5] = {'chess_gyro','chess_lich','chess_th','chess_enigma','chess_tech','chess_dp','chess_zeus'}, --,'chess_kael'
@@ -1082,6 +1084,8 @@ function DAC:InitGameMode()
 
 		chess_zeus = 5,
 		chess_mars = 1,
+		chess_gs = 3,
+		chess_ss_ssr = 8,
 	}
 	GameRules:GetGameModeEntity().chess_pool = {
 		[1] = {},
@@ -1185,6 +1189,8 @@ function DAC:InitGameMode()
 		--
 		chess_zeus = 'zeus_thunder',
 		chess_mars = 'mars_bulwark',
+		--
+		chess_gs = 'grimstroke_soul_chain',
 
 		chess_cm1 = 'cm_mana_aura',
 		chess_axe1 = 'axe_berserkers_call',
@@ -1256,6 +1262,8 @@ function DAC:InitGameMode()
 		--
 		chess_zeus1 = 'zeus_thunder',
 		chess_mars1 = 'mars_bulwark',
+		--
+		chess_gs1 = 'grimstroke_soul_chain',
 
 
 		chess_cm11 = 'cm_mana_aura',
@@ -1328,6 +1336,8 @@ function DAC:InitGameMode()
 		--
 		chess_zeus11 = 'zeus_thunder',
 		chess_mars11 = 'mars_bulwark',
+		--
+		chess_gs11 = 'grimstroke_soul_chain',
 
 		chess_ck_ssr = 'ck_illusion',
 	}
@@ -1411,6 +1421,8 @@ function DAC:InitGameMode()
 			mars_bulwark = 0,
 			--
 			faceless_void_chronosphere = 1,
+			--
+			grimstroke_soul_chain = 1,
 		}
 	
 	--组合技技能ability
@@ -1905,7 +1917,6 @@ function DAC:InitGameMode()
 	}
 end
 function InitHeros()
-	GetUTCTime()
 	--拼接要向服务器发送的steamid数据
 	for pid,sid in pairs(GameRules:GetGameModeEntity().playerid2steamid) do
 		GameRules:GetGameModeEntity().upload_detail_stat[sid] = {}
@@ -2901,8 +2912,6 @@ function ClearARound(teamid)
 	for _,v in pairs(GameRules:GetGameModeEntity().to_be_destory_list[teamid]) do
 		if v ~= nil and v:IsNull() == false then
 			-- SaveItem(teamid,v:entindex())
-
-			-- prt('ClearARound保存玩家'..teamid..' '..v:GetUnitName()..'的物品： ROUND '..GameRules:GetGameModeEntity().battle_round)
 			AddAbilityAndSetLevel(v,'no_selectable')
 			--需要手动清除防止遗留的buff
 			v:RemoveModifierByName('modifier_slark_shadow_dance')
@@ -2939,7 +2948,6 @@ function SaveItem(teamid,uindex,cb)
 			c.item = {}
 		end
 	end
-	-- prt('清空完毕：TIME '..math.floor(GameRules:GetGameTime() - GameRules:GetGameModeEntity().START_TIME))
 	--记录装备情况
 	for slot=0,8 do
 		if unit:GetItemInSlot(slot)~= nil then
@@ -3169,7 +3177,6 @@ function DAC:OnEntityKilled(keys)
 		EmitSoundOn("announcer_killing_spree_announcer_kill_rampage_01",attacker)
 
 		local scale = attacker:GetModelScale() + 0.3
-		-- prt(scale)
 
 		-- attacker:SetModelScale(scale)
 
@@ -3669,7 +3676,6 @@ function RecallChess(keys)
 	GameRules:GetGameModeEntity().mychess[team_id][''..origin_y..'_'..origin_x] = nil
 	GameRules:GetGameModeEntity().unit[team_id][''..origin_y..'_'..origin_x] = nil
 	GameRules:GetGameModeEntity().hand[team_id][target_index] = 1
-	-- prt(team_id..'手牌'..target_index..'占领')
 	if caster.hand_entities == nil then
 		caster.hand_entities = {}
 	end
@@ -4111,10 +4117,7 @@ function RemoveChess(keys)
 
 	local is_removing_hand = false
 	if target.hand_index == nil then
-		-- DeepPrintTable(GameRules:GetGameModeEntity().mychess[team_id])
-		-- print(target.y_x)
 		GameRules:GetGameModeEntity().mychess[team_id][target.y_x] = nil
-		-- DeepPrintTable(GameRules:GetGameModeEntity().mychess[team_id])
 		GameRules:GetGameModeEntity().population[team_id] = GameRules:GetGameModeEntity().population[team_id] - 1
 
 		--同步ui人口
@@ -4126,7 +4129,6 @@ function RemoveChess(keys)
 	else
 		is_removing_hand = true
 		GameRules:GetGameModeEntity().hand[team_id][target.hand_index] = 0
-		-- prt(team_id..'手牌'..target.hand_index..'清空')
 		caster.hand_entities[target.hand_index] = nil
 	end
 	RemoveFromToBeDestroyList(target)
@@ -4520,11 +4522,16 @@ function SyncHP(hero)
 								GameRules:GetGameModeEntity().stat_info[u]['queen_rank'] = v.queen_rank
 								GameRules:GetGameModeEntity().stat_info[u]['candy'] = v.candy or 0
 							end
-							print('POST GAME OK!')
-							
+							local amzdate = string.format(
+							    '%s%s%sT%s%s%sZ',
+							    t.year, t.month, t.date, t.hour, t.minute, t.second
+							)
+							local datestamp = string.format(
+							    '%s%s%s',
+							    t.year, t.month, t.date
+							)
 							--展示结束面板，结束游戏！
-							PostGame()
-							Timers:CreateTimer(5,function()
+							Timers:CreateTimer(6,function()
 								GameRules:SetGameWinner(last_hero:GetTeam())
 							end)
 							Timers:CreateTimer(RandomFloat(0,1),function()
@@ -4536,11 +4543,10 @@ function SyncHP(hero)
 							Timers:CreateTimer(RandomFloat(2,3),function()
 								SendPWData(t,dur)
 							end)
-							if t.is_repost == true then
-								Timers:CreateTimer(RandomFloat(3,4),function()
-									SendRepost(t,dur)
-								end)
-							end
+							Timers:CreateTimer(3,function()
+								PostGame()
+							end)
+							SendAmazonData(CollectAmazonData(t,dur),amzdate,datestamp)
 						else
 							prt('POST GAME ERROR : '..t.err)
 							PostGame()
@@ -4717,7 +4723,6 @@ function StartAPVERound()
 			Timers:CreateTimer(function()
 				if GameRules:GetGameModeEntity().battle_timer <= 0 then
 					GameRules:GetGameModeEntity().battle_count = GameRules:GetGameModeEntity().battle_count - 1
-					-- prt('玩家'..m..'防守成功，因为时间到了')
 					EmitGlobalSound('crowd.lv_01')
 					AddStat(TeamId2Hero(m):GetPlayerID(),'draw_round')
 					--发弹幕
@@ -4752,7 +4757,6 @@ function StartAPVERound()
 							AddAbilityAndSetLevel(b,'act_victory')
 							b.alreadywon = true
 						end
-						-- prt('玩家'..m..'防守成功，因为杀光了所有敌人（'..mychess..':'..enemychess..'）')
 						--发弹幕
 						-- CustomGameEventManager:Send_ServerToAllClients("bullet",{
 						-- 	player_id = TeamId2Hero(m):GetPlayerID(),
@@ -4985,10 +4989,7 @@ function CheckChess(team_id)
 	GameRules:GetGameModeEntity().population_max[team_id] = hero_level
 	
 	if chess_count > hero_level and table.maxn(dup_table) > 0 then
-		prt('CHECK CHESS')
-		prt('hero_level:'..hero_level..'/chess_count:'..chess_count)
 		for _,y_x in pairs(dup_table) do
-			prt('DELETE:'..y_x)
 			GameRules:GetGameModeEntity().mychess[team_id][y_x] = nil
 		end
 	end
@@ -5427,16 +5428,12 @@ function StartABattleRound()
 	
 
 	if GameRules:GetGameModeEntity().battle_boss[GameRules:GetGameModeEntity().battle_round] ~= nil then
-		-- prt(''..GameRules:GetGameModeEntity().battle_round..'PVE战斗回合开始')
 		StartAPVERound()
 	else
-		-- prt(''..GameRules:GetGameModeEntity().battle_round..'PVP战斗回合开始')
 		StartAPVPRound()
 	end
 
 	GameRules:GetGameModeEntity().battle_round = GameRules:GetGameModeEntity().battle_round + 1
-	
-	-- prt('next round: '..GameRules:GetGameModeEntity().battle_round)
 end
 --游戏循环2.1——分配对手
 function AllocateABattleRound()
@@ -5910,7 +5907,6 @@ function MirrorARound(teamid)
 	local my_opp = nil
 
 	Timers:CreateTimer(RandomFloat(0.1,0.5),function()
-		-- DeepPrintTable(GameRules:GetGameModeEntity().counterpart)
 		for myteam,enemyteam in pairs(GameRules:GetGameModeEntity().counterpart) do
 			if enemyteam == teamid then
 				opp = myteam
@@ -6193,7 +6189,6 @@ function ChessAI(u)
 								local dragon_level = u:FindAbilityByName('dragon_knight_elder_dragon_form'):GetLevel()
 
 								if dragon_level == 2 then
-									-- prt('变龙--->'..dragon_level)
 									Timers:CreateTimer(1,function()
 										u:SetRangedProjectileName("effect/dragon/baseattack/2.vpcf")
 										-- u:SetOriginalModel("models/items/dragon_knight/fireborn_dragon/fireborn_dragon.vmdl")
@@ -6201,7 +6196,6 @@ function ChessAI(u)
 									end)
 								end
 								if dragon_level == 3 then
-									-- prt('变龙--->'..dragon_level)
 									Timers:CreateTimer(1,function()
 										u:SetRangedProjectileName("effect/dragon/baseattack/3.vpcf")
 										-- u:SetOriginalModel("models/items/dragon_knight/oblivion_blazer_dragon/oblivion_blazer_dragon.vmdl")
@@ -6499,7 +6493,6 @@ function FindClosestEmptyGridToAttackUnluckydog(u,dog)
 	local attack_range = u:Script_GetAttackRange() or 210
 	local closest_range = 9999
 	local closet_position = nil
-	-- prt('dog.x/dog.y='..dog.x..'/'..dog.y)
 	local dog_position = XY2Vector(dog.x,dog.y,team)
 	for x=1,8 do
 		for y=1,8 do
@@ -7446,7 +7439,6 @@ function DAC:OnPlayerChat(keys)
 			hero:RemoveAbility(hero.effect)
 			hero:RemoveModifierByName('modifier_texiao_star')
 		end
-		prt('TEST CODE: EFFECT = '..keys.text)
 		hero:AddAbility(keys.text)
 		hero:FindAbilityByName(keys.text):SetLevel(1)
 		hero.effect = keys.text
@@ -7540,6 +7532,11 @@ function DAC:OnPlayerChat(keys)
 		prt('TEST CODE: DEBUG OFF!')
 		GameRules:GetGameModeEntity().is_debug = false
 	end
+	if tokens[1] == '-pause' and GameRules:GetGameModeEntity().myself == true then
+		PauseGame(not GameRules:IsGamePaused())
+	end
+
+	
 
 	if tokens[1] == "-stub" and GameRules:GetGameModeEntity().myself == true then
 		local team_id = hero:GetTeam()
@@ -8176,12 +8173,8 @@ function CmManaAura(keys)
 	local radius = keys.radius or 800
 	local mana = keys.mana or 5
 
-	-- print('CmManaAura '..at_team_id..'/'..team_id)
 	for _,unit in pairs(GameRules:GetGameModeEntity().to_be_destory_list[at_team_id]) do
-		-- print(unit:GetUnitName()..' team='..unit.team_id)
 		if unit.team_id == team_id and unit:GetMaxMana() ~= 0 then
-			--add mana
-			-- print(unit:GetUnitName()..' ADD MANA!')
 			play_particle('particles/units/heroes/hero_obsidian_destroyer/obsidian_destroyer_matter_manasteal.vpcf',PATTACH_OVERHEAD_FOLLOW,unit,3)
 			unit:SetMana(unit:GetMana()+mana)
 		end
@@ -8370,7 +8363,6 @@ function ChessTechBomb(keys)
 	local team = caster:GetTeam()
 
 	if p == nil then
-		-- prt('DEBUG: 炸药桶的位置是nil')
 		return
 	end
 
@@ -8394,7 +8386,6 @@ function ChessTechBomb(keys)
 		EmitSoundOn("Hero_Techies.RemoteMine.Detonate",u)
 		play_particle("particles/dac/zhayaotong/zhayaotong.vpcf",PATTACH_ABSORIGIN_FOLLOW,u,2)
 		--伤害
-		-- prt('爆炸，caster是'..caster:GetTeam()..'队的')
 		ApplyDamageInRadius({
 			caster = caster,
 			team = team,
@@ -8847,7 +8838,6 @@ function FindPath(p1,p2,team)
 
 		return nil
 	else
-		-- print('find NO')
 		--没找到路
 		return nil
 	end
@@ -8976,7 +8966,6 @@ function SendHTTP(url, callback, fail_callback)
     req:Send(function(res)
 
         if res.StatusCode ~= 200 or not res.Body then
-            -- prt('CONNECT SERVER ERROR:'..res.StatusCode)
             if fail_callback ~= nil then
             	fail_callback(obj)
             end
@@ -9482,6 +9471,33 @@ function SendYingdiData(t,dur)
 	    table.insert(yingdi_data['players'],insertdata)
 	end
 	SendHTTPPost(yingdi_url,yingdi_data)
+end
+function CollectAmazonData(t,dur)
+	local base_data = {
+		version = '0.1',
+	    end_time=t.end_time,
+	    duration=dur,
+	    players={},
+	    chess_detail=GameRules:GetGameModeEntity().upload_detail_stat,
+	}
+
+	for user,data in pairs(t.mmr_info) do
+	    local insertdata = {}
+	    insertdata["account_id"] = user
+	    insertdata["rank"] = data.rank
+	    insertdata["total"] = data.total
+	    insertdata["level"] = data.level
+	    insertdata["chess"] = GameRules:GetGameModeEntity().stat_info[user]['chess_lineup']
+	    insertdata["win_round"] = GameRules:GetGameModeEntity().stat_info[user]['win_round']
+	    insertdata["lose_round"] = GameRules:GetGameModeEntity().stat_info[user]['lose_round']
+	    insertdata["kills"] = GameRules:GetGameModeEntity().stat_info[user]['kills']
+	    insertdata["deaths"] = GameRules:GetGameModeEntity().stat_info[user]['deaths']
+	    insertdata["gold"] = GameRules:GetGameModeEntity().stat_info[user]['gold']
+	    insertdata["candy"] = GameRules:GetGameModeEntity().stat_info[user]['candy']
+	    insertdata["duration"] = GameRules:GetGameModeEntity().stat_info[user]['duration']
+	    table.insert(base_data['players'],insertdata)
+	end
+	return base_data
 end
 function SendPWData(t,dur)
 	local pw_url = "http://52.81.131.74:5140"
@@ -10015,10 +10031,6 @@ function GetSendKey()
 	return "&key="..GetDedicatedServerKey('drodo').."&key2="..GetDedicatedServerKeyV2('zzwdjs').."&key3="..GetDedicatedServerKeyV2('xgnb').."&key4="..GetDedicatedServerKeyV2('fgnb').."&key5="..GetDedicatedServerKeyV2('bsl,bgbxh')
 end
 
--- function Shanbi(keys)
--- 	prt('闪避！')
--- end
-
 --从某个玩家的手牌中寻找两个chess棋子，返回：有几个，第一个，第二个，第三个
 function Find2SameChessInHand(caster,chess)
 	local count = 0
@@ -10407,7 +10419,7 @@ function string.split(s, sep)
     return t
 end
 function sign(key, msg)
-	return sha2.hmac(sha2.sha256,key,msg)
+	return sha2.hex2bin(sha2.hmac(sha2.sha256,key,msg))
 end
 function getSignatureKey(key, dateStamp, regionName, serviceName)
     kDate = sign('AWS4'..key, dateStamp)
@@ -10416,32 +10428,11 @@ function getSignatureKey(key, dateStamp, regionName, serviceName)
     kSigning = sign(kService, 'aws4_request')
     return kSigning
 end
-function GetUTCTime()
-	local req = CreateHTTPRequestScriptVM('GET','http://autochess.ppbizon.com/gettime')
-	req:SetHTTPRequestAbsoluteTimeoutMS(20000)
-
-    req:Send(function(res)
-        local t = json.decode(res.Body)
-        if t.err == 0 then
-			local amzdate = string.format(
-			    '%s%s%sT%s%s%sZ',
-			    t.year, t.month, t.date, t.hour, t.minute, t.second
-			)
-			local datestamp = string.format(
-			    '%s%s%s',
-			    t.year, t.month, t.date
-			)
-			SendAmazonData('123456',amzdate,datestamp)
-		end
-    end)
-end
 function SendAmazonData(ctx,amzdate,datestamp)
-	prt('SendAmazonData')
-	ctx = {context = 'amazon', key = 'ilongyuan'}
 	local data = {
 	  StreamName = "report_reciver",
-	  Data = to_base64(json.encode(ctx)),
-	  PartitionKey = RandomInt(1,1000000),
+	  Data = base64.encode(json.encode(ctx)),
+	  PartitionKey = 'AMAZON'..RandomInt(1,1000),
 	}
 	local body_data = json.encode(data)
 	local method = 'POST'
@@ -10449,56 +10440,87 @@ function SendAmazonData(ctx,amzdate,datestamp)
 	local host = 'kinesis.us-east-2.amazonaws.com'
 	local region = 'us-east-2'
 	local endpoint = 'https://kinesis.us-east-2.amazonaws.com'
-	-- local endpoint = 'http://39.106.23.42:9696/postdata'
 	local request_parameters = ""
-	local enc_AWS_ACCESS_KEY_ID = "03FAE7D6D1B989EAD761DFDEE153147317FD60EB75113C7B859D842A31B69E0E"
+	local enc_AWS_ACCESS_KEY_ID = "0FC19BD8AA2A5FD04DF93D159A20B029DBD77C91B4FCD06984977EA16CACA29C"
 	local AWS_ACCESS_KEY_ID = aeslua.decrypt(GetDedicatedServerKeyV2('bsl,bgbxh'),string.fromhex(enc_AWS_ACCESS_KEY_ID))
 	local access_key = AWS_ACCESS_KEY_ID
-	if GameRules:GetGameModeEntity().myself == true then
-		prt('access_key')
-		prt(access_key)
-	end
-	local enc_AWS_SECRET_ACCESS_KEY = '5FE9D24D6992244A2730501080A5B3A63F91E94090763C67C0FEB79A2D86B83E1F7FC1A15C993FB11AD31BB9F1D284FB'
+	local enc_AWS_SECRET_ACCESS_KEY = '71EE3307D3409C93596E9E0D6B1BDE66808D6BC503F2F9196E8AEE19F499418E6BC870F3E4DCE981A327EDB3F416B1A4'
 	local AWS_SECRET_ACCESS_KEY = aeslua.decrypt(GetDedicatedServerKeyV2('bsl,bgbxh'),string.fromhex(enc_AWS_SECRET_ACCESS_KEY))
 	local secret_key = AWS_SECRET_ACCESS_KEY
-	if GameRules:GetGameModeEntity().myself == true then
-		prt('secret_key')
-		prt(secret_key)
-	end
+
 	local canonical_uri = '/'
 	local canonical_querystring = request_parameters
 	local canonical_headers = 'host:'..host..'\n'..'x-amz-date:'..amzdate..'\n'
 	local signed_headers = 'host;x-amz-date'
 	local payload_hash = sha2.sha256(body_data)
 	local canonical_request = method..'\n'..canonical_uri..'\n'..canonical_querystring..'\n'.. canonical_headers..'\n'..signed_headers..'\n'..payload_hash
-	prt('canonical_request')
 
 	local algorithm = 'AWS4-HMAC-SHA256'
-	local credential_scope = datestamp..'/'..region..'/'..service..'/'..'aws4_requeest'
+	local credential_scope = datestamp..'/'..region..'/'..service..'/'..'aws4_request'
 	local string_to_sign = algorithm..'\n'..amzdate..'\n'..credential_scope..'\n'..sha2.sha256(canonical_request)
-	prt('string_to_sign'..string_to_sign)
 
 	local signing_key = getSignatureKey(secret_key, datestamp, region, service)
-	prt('signing_key'..signing_key)
 	local signature = sha2.hmac(sha2.sha256,signing_key,string_to_sign)
-	prt('signature'..signature)
+
 	local authorization_header = algorithm..' '..'Credential='..access_key..'/'..credential_scope..', '..'SignedHeaders='..signed_headers..', '..'Signature='..signature
 
 	local request_url = endpoint..'/'
-	-- local request_url = endpoint
 
-	prt('ready for request')
 	local req = CreateHTTPRequestScriptVM("POST",request_url)
     req:SetHTTPRequestHeaderValue("x-amz-date", amzdate)
     req:SetHTTPRequestHeaderValue("Content-Type", "application/x-amz-json-1.1")
     req:SetHTTPRequestHeaderValue("X-Amz-Target", "Kinesis_20131202.PutRecord")
     req:SetHTTPRequestHeaderValue("Authorization", authorization_header)
-    req:SetHTTPRequestGetOrPostParameter("data",body_data)
+    req:SetHTTPRequestRawPostBody("application/x-amz-json-1.1",body_data)
     req:Send(function(res)
-    	prt('response')
-    	prt(res)
         if res.StatusCode ~= 200 or not res.Body then
             return
         end
     end)
+end
+
+function DAC:OnPauseGame(keys)
+	local player_id = keys.playerid
+	local hero = GameRules:GetGameModeEntity().playerid2hero[player_id]
+
+	if IsUnitExist(hero) == false then
+		return
+	end
+	if GameRules:IsGamePaused() then
+		PauseGame(false)
+		CustomGameEventManager:Send_ServerToAllClients("bullet",{
+			player_id = player_id,
+			text = '#text_unpause_game'
+		})
+		return
+	end
+
+	if GameRules:GetGameModeEntity().START_TIME == nil then
+		return
+	end
+
+	local pause_time = math.floor(GameRules:GetGameTime() - GameRules:GetGameModeEntity().START_TIME)
+	if hero.last_pause_time == nil then
+		PauseGame(true)
+		CustomGameEventManager:Send_ServerToAllClients("bullet",{
+			player_id = player_id,
+			text = '#text_pause_game'
+		})
+		hero.last_pause_time = pause_time
+	else
+		if pause_time - hero.last_pause_time > 300 then
+			PauseGame(true)
+			CustomGameEventManager:Send_ServerToAllClients("bullet",{
+				player_id = player_id,
+				text = '#text_pause_game'
+			})
+			hero.last_pause_time = pause_time
+		else
+			-- prt('你'..(300-pause_time +hero.last_pause_time)..'秒后才能暂停')
+			return
+		end
+	end
+
+	
+
 end
