@@ -10741,7 +10741,7 @@
 			"02"
 			{
 				"var_type"	"FIELD_FLOAT"
-				"damage_percent"	"5 7 9"
+				"damage_percent"	"6 9 12"
 			}
 			"03"
 			{
@@ -12999,14 +12999,14 @@
 		"AbilityBehavior"	"DOTA_ABILITY_BEHAVIOR_HIDDEN | DOTA_ABILITY_BEHAVIOR_PASSIVE"
 		"precache"
 		{
-			"particle"	"particles/econ/items/silencer/silencer_ti6/silencer_last_word_status_ti6.vpcf"
+			"particle"	"effect/emengchanrao/1.vpcf"
 		}
 		"Modifiers"
 		{
 			"modifier_texiao_star"
 			{
 				"Passive"	"1"
-				"EffectName"	"particles/econ/items/silencer/silencer_ti6/silencer_last_word_status_ti6.vpcf"
+				"EffectName"	"effect/emengchanrao/1.vpcf"
 				"EffectAttachType"	"attach_origin"
 				"IsHidden"	"1"
 			}

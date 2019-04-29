@@ -1100,7 +1100,7 @@ function DAC:InitGameMode()
 		chess_lich_ssr = 6,
 
 		chess_dazzle = 3,
-		chess_io = 4,
+		chess_io = 5,
 	}
 	GameRules:GetGameModeEntity().chess_pool = {
 		[1] = {},
@@ -3395,16 +3395,15 @@ function RandomDrawChessNew(team_id)
 			table.insert(table_11chess,string.sub(chess.chess,1,-3))
 		end
 	end
-	--请勿曝光未正式发布的内容
-	local ran1 = RandomInt(1,1000)
-	local ran2 = RandomInt(1,100000)
-	if h:GetLevel() >= 7 and ran1 <= 1 then
-		if ran2 <= 1 then
-			this_chess = GameRules:GetGameModeEntity().chess_list_ssr[RandomInt(1,table.maxn(GameRules:GetGameModeEntity().chess_list_ssr))]
-		else
-			this_chess = 'chess_io'
-		end
+	
+	local ran1 = RandomInt(1,10000)
+	local ran2 = RandomInt(1,10000)
+	if h:GetLevel() >= 7 and ran1 <= 1 and ran2 <= 1 then
+		this_chess = GameRules:GetGameModeEntity().chess_list_ssr[RandomInt(1,table.maxn(GameRules:GetGameModeEntity().chess_list_ssr))]
+	elseif ran1 <= 30 then
+		this_chess = 'chess_io'
 	else
+		--正常抽牌
 		if GameRules:GetGameModeEntity().chess_gailv[hero_level] ~= nil then
 			for per,lv in pairs(GameRules:GetGameModeEntity().chess_gailv[hero_level]) do
 				if ran>per and curr_per<=per then
@@ -6292,7 +6291,7 @@ function ChessAI(u)
 
 		local start_delay = 0
 		if u:FindAbilityByName('is_assassin') ~= nil and GameRules:GetGameModeEntity().chess_ability_list[u:GetUnitName()] ~= nil then
-			start_delay = 0.5
+			start_delay = 0.75
 		end
 		local delay = RandomFloat(0.5,2)+start_delay
 
