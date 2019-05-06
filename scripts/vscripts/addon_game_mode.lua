@@ -514,6 +514,7 @@ function Precache( context )
 		"soundevents/game_sounds_heroes/game_sounds_dazzle.vsndevts",
 		"soundevents/game_sounds_heroes/game_sounds_dark_seer.vsndevts",
 		"soundevents/music/game_sounds_stingers_diretide.vsndevts",
+		"particles/gem/brewmaster_drunken_haze_debuff_bubbles_2.vpcf",
 	} 
     print("Precache...")
 	local t=table.maxn(mxx)
@@ -1724,9 +1725,11 @@ function DAC:InitGameMode()
 		h308 = "effect/drodo/1.vpcf",
 		h199 = "effect/gewugu/3.vpcf",
 		h239 = "effect/wangyu/1.vpcf",
+		h303 = "effect/douyu/2.vpcf",
 	}
 	GameRules:GetGameModeEntity().courier_ground_effect_list = {
 		h199 = "effect/gewugu/2.vpcf",
+		h303 = "particles/gem/brewmaster_drunken_haze_debuff_bubbles_2.vpcf",
 	}
 
 	GameRules:GetGameModeEntity().sm_hero_size = {
@@ -1998,6 +2001,8 @@ function InitHeros()
 					hero.notbishop = true
 				end
 
+				DeepPrintTable(user_info)
+
 				if user_info.is_top_3 ~= nil then
 					-- prt('调试信息：一个段位排名前三的玩家加入了游戏。')
 					hero.is_top_3 = 1
@@ -2064,8 +2069,8 @@ function InitHeros()
 				hero.steam_id = steam_id
 				ShowCourierEffect(hero,1)
 
-				if user_info.is_crown == true then
-					hero.crown = true
+				if user_info.is_crown ~= nil then
+					hero.is_crown = true
 					ShowCrown(hero,1)
 				end
 
@@ -9356,7 +9361,7 @@ function DAC:OnCatchCrab(keys)
 	local player_id = keys.PlayerID
 	local urls = {
 		ranking_top = 'https://autochess.ppbizon.com/ranking/top',
-		refresh_shop = 'https://autochess.ppbizon.com/shop/v2/get',
+		refresh_shop = 'https://autochess.ppbizon.com/shop/s1/get',
 		buy_effect = 'https://autochess.ppbizon.com/shop/v2/effect',
 		choose_hero = 'https://autochess.ppbizon.com/courier/change',
 		lottery_go = 'https://autochess.ppbizon.com/shop/lottery',
