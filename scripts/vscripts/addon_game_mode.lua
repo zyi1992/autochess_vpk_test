@@ -515,6 +515,10 @@ function Precache( context )
 		"soundevents/game_sounds_heroes/game_sounds_dark_seer.vsndevts",
 		"soundevents/music/game_sounds_stingers_diretide.vsndevts",
 		"particles/gem/brewmaster_drunken_haze_debuff_bubbles_2.vpcf",
+		"models/qie/qie.vmdl",
+		"models/courier/f2p_courier/f2p_courier.vmdl",
+		"models/items/courier/azuremircourierfinal/azuremircourierfinal.vmdl",
+		"effect/roshan_ti9/1.vpcf",
 	} 
     print("Precache...")
 	local t=table.maxn(mxx)
@@ -618,7 +622,7 @@ function Precache( context )
 		chess_veno = 'veno_ward',
 		chess_gyro = 'gyrocopter_call_down',
 		chess_jakiro = 'jakiro_macropyre',
-		chess_lich = 'lich_chain_frost',
+		chess_lich = 'lich_frost_armor',
 		chess_qop = 'queenofpain_scream_of_pain',
 		chess_th = 'tidehunter_ravage',
 		--
@@ -757,7 +761,7 @@ function DAC:InitGameMode()
     CustomGameEventManager:RegisterListener("request_pause_game", Dynamic_Wrap(DAC, "OnPauseGame") )
 
     GameRules:GetGameModeEntity().battle_round = 1
-    GameRules:GetGameModeEntity().pilao_round = 51
+    GameRules:GetGameModeEntity().pilao_round = 50
     GameRules:GetGameModeEntity().difficulty = 2
     GameRules:GetGameModeEntity().steamidlist = ''
     GameRules:GetGameModeEntity().steamidlist_heroindex = ''
@@ -1230,7 +1234,7 @@ function DAC:InitGameMode()
 		chess_veno1 = 'veno_ward',
 		chess_gyro1 = 'gyrocopter_call_down',
 		chess_jakiro1 = 'jakiro_macropyre',
-		chess_lich1 = 'lich_chain_frost',
+		chess_lich1 = 'lich_frost_armor',
 		chess_qop1 = 'queenofpain_scream_of_pain',
 		chess_th1 = 'tidehunter_ravage',
 		--
@@ -1304,7 +1308,7 @@ function DAC:InitGameMode()
 		chess_veno11 = 'veno_ward',
 		chess_gyro11 = 'gyrocopter_call_down',
 		chess_jakiro11 = 'jakiro_macropyre',
-		chess_lich11 = 'lich_chain_frost',
+		chess_lich11 = 'lich_frost_armor',
 		chess_qop11 = 'queenofpain_scream_of_pain',
 		chess_th11 = 'tidehunter_ravage',
 		--
@@ -1586,6 +1590,8 @@ function DAC:InitGameMode()
 		h133 = "models/courier/mechjaw/mechjaw.vmdl",--机械咬人箱new
 		h134 = "models/items/courier/mole_messenger/mole_messenger.vmdl",--1级矿车老鼠
 		h135 = "models/items/courier/jumo_dire/jumo_dire.vmdl",
+		h136 = "models/items/courier/courier_ti9/courier_ti9.vmdl",
+		h137 = "models/items/courier/courier_ti9/courier_ti9_lvl2/courier_ti9_lvl2.vmdl",
 
 		h199 = "models/gezi/ge.vmdl",
 
@@ -1632,6 +1638,8 @@ function DAC:InitGameMode()
 		h238 = "models/items/courier/pangolier_squire/pangolier_squire.vmdl",
 
 		h239 = "models/hujing_wangyu/hujing.vmdl",
+		h240 = "models/items/courier/courier_ti9/courier_ti9_lvl3/courier_ti9_lvl3.vmdl",
+		
 
 		--珍藏信使 pro
 		h301 = "models/items/courier/bookwyrm/bookwyrm.vmdl",
@@ -1672,6 +1680,10 @@ function DAC:InitGameMode()
 		h334 = "models/courier/smeevil_crab/smeevil_crab.vmdl",
 		h335 = "models/items/courier/mole_messenger/mole_messenger_lvl6.vmdl",--绿钻头矿车老鼠
 		h336 = "models/items/courier/amaterasu/amaterasu.vmdl", --天照大神
+		h337 = "models/qie/qie.vmdl",
+		h338 = "models/courier/f2p_courier/f2p_courier.vmdl",
+		h339 = "models/items/courier/azuremircourierfinal/azuremircourierfinal.vmdl",
+		h340 = "models/items/courier/courier_ti9/courier_ti9_lvl6/courier_ti9_lvl6.vmdl",
 
 		h399 = "models/courier/baby_rosh/babyroshan_winter18.vmdl",--姜饼肉山
 
@@ -1713,6 +1725,8 @@ function DAC:InitGameMode()
 		h430 = "models/courier/frull/frull_courier.vmdl", --灵犀弗拉尔
 		h431 = "models/items/courier/sltv_10_courier/sltv_10_courier.vmdl", --黄油小生
 		h432 = "models/items/courier/nian_courier/nian_courier.vmdl", --年兽宝宝
+		h433 = "models/courier/baby_rosh/babyroshan_ti9.vmdl",
+		h434 = "models/items/courier/courier_ti9/courier_ti9_lvl7/courier_ti9_lvl7.vmdl",
 
 		h444 = "models/props_gameplay/donkey.vmdl", 
 	}
@@ -1726,6 +1740,7 @@ function DAC:InitGameMode()
 		h199 = "effect/gewugu/3.vpcf",
 		h239 = "effect/wangyu/1.vpcf",
 		h303 = "effect/douyu/2.vpcf",
+		h433 = "effect/roshan_ti9/1.vpcf",
 	}
 	GameRules:GetGameModeEntity().courier_ground_effect_list = {
 		h199 = "effect/gewugu/2.vpcf",
@@ -1773,6 +1788,8 @@ function DAC:InitGameMode()
 		h133 = 1.1,--机械咬人箱new
 		h134 = 1.1,--1级矿车老鼠
 		h135 = 1.1,
+		h136 = 1.1,
+		h137 = 1.15,
 
 		h199 = 1.5,
 		--小英雄信使 ameteur
@@ -1804,7 +1821,7 @@ function DAC:InitGameMode()
 		h225 = 1.3, --胆小南瓜人
 		h226 = 1.3, --螃蟹1
 		h227 = 1.3, --螃蟹2
-		h228 = 1.25, --螃蟹3
+		h228 = 1.2, --螃蟹3
 
 		h229 = 1.2, --竭智法师new
 		h230 = 1.3, --蓝心白隼new
@@ -1817,6 +1834,7 @@ function DAC:InitGameMode()
 		h237 = 1.2,
 		h238 = 0.8,
 		h239 = 1.4,
+		h240 = 1.25,
 
 		--珍藏信使 pro
 		h301 = 1.3,
@@ -1857,6 +1875,10 @@ function DAC:InitGameMode()
 		h334 = 1.3,
 		h335 = 1.1,--绿钻头矿车老鼠
 		h336 = 1.15, --天照大神
+		h337 = 1.4,
+		h338 = 1.3,
+		h339 = 1.4,
+		h340 = 1.3,
 
 		h399 = 1.2,--姜饼肉山
 
@@ -1898,6 +1920,8 @@ function DAC:InitGameMode()
 		h430 = 1.3, --灵犀弗拉尔
 		h431 = 1.2, --黄油小生
 		h432 = 1.3, --年兽宝宝
+		h433 = 1.35,
+		h434 = 1.4,
 
 		h444 = 1, 
 	}
@@ -2000,8 +2024,6 @@ function InitHeros()
 				if user_info.mmr_level < 19 then
 					hero.notbishop = true
 				end
-
-				DeepPrintTable(user_info)
 
 				if user_info.is_top_3 ~= nil then
 					-- prt('调试信息：一个段位排名前三的玩家加入了游戏。')
@@ -2596,7 +2618,7 @@ function StartAPrepareRound()
 	end
 
 	--50回合以后，疲劳
-	if GameRules:GetGameModeEntity().battle_round >= GameRules:GetGameModeEntity().pilao_round then
+	if GameRules:GetGameModeEntity().battle_round > GameRules:GetGameModeEntity().pilao_round then
 		for _,heroent in pairs (GameRules:GetGameModeEntity().hero) do
 			if heroent ~= nil and heroent:IsNull() == false and heroent:IsAlive() == true then
 				local bite_hp = math.floor(heroent:GetHealth() / 2) --GameRules:GetGameModeEntity().battle_round - 50
@@ -3533,6 +3555,14 @@ function DAC:OnRequestBuyChess(keys)
 		return
 	end
 
+	if chess == 'chess_io' then
+		--小精灵发弹幕
+		CustomGameEventManager:Send_ServerToAllClients("bullet",{
+			player_id = h:GetPlayerID(),
+			target = chess,
+		})
+	end
+
 	--判断手牌里是否有两个一样的，有的话直接合成
 	local have_exist_count,chess1,chess2,chess3 = Find2SameChessInHand(h,chess)
 
@@ -4364,7 +4394,6 @@ end
 function Find2SameChessByIO(team_id,level)
 	for _,v1 in pairs(GameRules:GetGameModeEntity().mychess[team_id]) do
 		if v1 ~= nil and v1.chess ~= 'chess_io' and v1.chess ~= 'chess_io1' and v1.combining ~= true and GetStarLevelOfUnit(v1.chess) == level then
-			DeepPrintTable(v1)
 			for _,v2 in pairs(GameRules:GetGameModeEntity().mychess[team_id]) do
 				if v2 ~= nil and v2.index ~= v1.index and v2.chess ~= 'chess_io' and v2.chess ~= 'chess_io1' and v2.combining ~= true and GetStarLevelOfUnit(v2.chess) == level and v1.chess == v2.chess then
 					return v1,v2
@@ -4375,7 +4404,7 @@ function Find2SameChessByIO(team_id,level)
 end
 --为小精灵找一个指定level星级的德鲁伊棋子
 function Find1ChessByIO(team_id,level)
-	for _,v1 in pairs(GameRules:GetGameModeEntity().mychess[team_id]) do
+	for uuu,v1 in pairs(GameRules:GetGameModeEntity().mychess[team_id]) do
 		if v1 ~= nil and v1.combining ~= true then
 			if level == 1 and (v1.chess == 'chess_eh' or v1.chess == 'chess_fur' or v1.chess == 'chess_tp' or v1.chess == 'chess_ld') then
 				return v1
@@ -4678,7 +4707,7 @@ function SyncHP(hero)
 
 		--决赛提醒
 		if live_count == 2 and PlayerResource:GetPlayerCount() > 2 then
-			GameRules:GetGameModeEntity().pilao_round = GameRules:GetGameModeEntity().battle_round + 5
+			GameRules:GetGameModeEntity().pilao_round = GameRules:GetGameModeEntity().battle_round + 6 --野怪关不算
 			prt('#text_grand_final_start')
 			-- EmitGlobalSound("diretide_eventstart_Stinger")
 			EmitGlobalSound("diretide_sugarrush_Stinger")
@@ -4727,15 +4756,6 @@ function SyncHP(hero)
 							--展示结束面板，结束游戏！
 							Timers:CreateTimer(6,function()
 								GameRules:SetGameWinner(last_hero:GetTeam())
-							end)
-							Timers:CreateTimer(RandomFloat(0,1),function()
-								SendMaxData(t,dur)
-							end)
-							Timers:CreateTimer(RandomFloat(1,2),function()
-								SendYingdiData(t,dur)
-							end)
-							Timers:CreateTimer(RandomFloat(2,3),function()
-								SendPWData(t,dur)
 							end)
 							Timers:CreateTimer(3,function()
 								PostGame()
@@ -4858,6 +4878,7 @@ function DropItem(unit)
 			[4] = 'item_miyinchui',
 			[5] = 'item_biaoqiang',
 			[6] = 'item_molifazhang',
+			[7] = 'item_xiaofu',
 		},
 		[3] = {
 			[1] = 'item_emodaofeng',
@@ -5518,7 +5539,7 @@ function LoseARound(team,enemychess_new)
 	end
 
 	if hero:FindModifierByName('modifier_is_priest_buff') ~= nil then
-		damage_all = math.floor(damage_all*0.8)
+		damage_all = math.ceil(damage_all*0.8)
 		if damage_all == 0 then
 			damage_all = 1
 		end
@@ -6323,6 +6344,16 @@ function ChessAI(u)
 
 
 			--使用物品
+			local bkb_result = TriggerBKB(u)
+			if bkb_result ~= nil and bkb_result > 0 then
+				return bkb_result + ai_delay
+			end
+
+			local renjia_result = TriggerRenjia(u)
+			if renjia_result ~= nil and renjia_result > 0 then
+				return renjia_result + ai_delay
+			end
+
 			local refresh_result = TriggerRefreshOrb(u)
 			if refresh_result ~= nil and refresh_result > 0 then
 				return refresh_result + ai_delay
@@ -6336,11 +6367,6 @@ function ChessAI(u)
 			local sheep_result = TriggerSheepStick(u)
 			if sheep_result ~= nil and sheep_result > 0 then
 				return sheep_result + ai_delay
-			end
-
-			local renjia_result = TriggerRenjia(u)
-			if renjia_result ~= nil and renjia_result > 0 then
-				return renjia_result + ai_delay
 			end
 
 			local dagon_result = TriggerDagon(u)
@@ -7441,6 +7467,9 @@ end
 function AddMaxHPPer(keys)
 	local caster = keys.caster
 	local per = keys.per
+	if caster:IsAncient() == true then
+		return
+	end
 
 	local hp = caster:GetMaxHealth()
 	local hp_per = caster:GetHealth()/caster:GetMaxHealth()
@@ -8061,7 +8090,7 @@ function show_damage(keys)
 	end
 	mana_get = RandomInt(mana_get/2,mana_get)
 	
-	if caster:FindModifierByName("modifier_item_jixianfaqiu") ~= nil  then
+	if caster:FindModifierByName("modifier_item_jixianfaqiu") ~= nil or caster:FindModifierByName("modifier_item_tiaodao") ~= nil then
 		mana_get = math.floor(mana_get * 1.25)
 	end
 	if caster:FindModifierByName("modifier_item_yangdao") ~= nil then
@@ -8183,6 +8212,7 @@ function RenJiaDamaged(keys)
 	end
 
 	caster.is_renjia_damaged = true
+	caster.is_bkb_damaged = true
 end
 --电锤技能
 function DianChui(event)
@@ -8575,6 +8605,33 @@ function TriggerRenjia(u)
 	end
 end
 
+function TriggerBKB(u)
+	if u:FindModifierByName("modifier_item_bkb") == nil then
+		return 
+	end
+	if u.is_bkb_damaged == nil then 
+		return
+	end
+
+	for slot=0,5 do
+		if u:GetItemInSlot(slot)~= nil then
+			local ability = u:GetItemInSlot(slot)
+			local name = ability:GetAbilityName()
+			if name == 'item_bkb' and ability:IsCooldownReady() == true then
+				EmitSoundOn('DOTA_Item.BlackKingBar.Activate',u)
+				InvisibleUnitCast({
+					caster = u,
+					ability = 'give_bkb_buff',
+					level = 1,
+					unluckydog = u,
+				})
+				ability:StartCooldown(30)
+				return 1
+			end
+		end
+	end
+end
+
 function TriggerTiaodao(u)
 	if u:FindModifierByName("modifier_item_tiaodao") == nil then
 		return 
@@ -8791,10 +8848,18 @@ function TbMohua(keys)
 		local per2 = 1.0*hp2/hp_max2
 
 		if caster ~= nil and caster:IsNull() ~= true and caster:IsAlive() == true then
-			caster:SetHealth(caster:GetMaxHealth()*per2)
+			local h1 = caster:GetMaxHealth()*per2
+			if h1<=1 then
+				h1 = 1
+			end
+			caster:SetHealth(h1)
 		end
 		if caster ~= nil and caster:IsNull() ~= true and caster:IsAlive() == true then
-			unluckydog:SetHealth(unluckydog:GetMaxHealth()*per1)
+			local h2 = unluckydog:GetMaxHealth()*per1
+			if h2<=1 then
+				h2 = 1
+			end
+			unluckydog:SetHealth(h2)
 		end
 		
 		--（3）播放特效音效 
@@ -8876,9 +8941,12 @@ function SummonOneMinion(caster, minion, p)
 	if caster == nil then
 		return
 	end
+
 	local v = p or FindEmptyGridAtUnit(caster)
 	local teamid = caster.team_id
 	local at_teamid = caster.at_team_id or caster.team_id
+
+	
 	if v == nil then
 		return
 	end
@@ -8888,6 +8956,13 @@ function SummonOneMinion(caster, minion, p)
 	if at_teamid == nil then
 		return
 	end
+
+	--判断英雄是否还活着
+	local hero1 = TeamId2Hero(at_teamid)
+	if hero1 == nil or hero1:IsNull() or hero1:IsAlive() == false then
+		return
+	end
+	
 	local x = CreateUnitByName(minion,v,true,nil,nil,teamid)
 
 	table.insert(GameRules:GetGameModeEntity().to_be_destory_list[at_teamid],x)
@@ -9767,36 +9842,6 @@ function DAC:OnPreviewEffect(keys)
 	end
 end
 
-function SendYingdiData(t,dur)
-	local yingdi_url = "http://www.iyingdi.com/tool/autochess/record/match/product"
-	local yingdi_data = {
-		key=GetDedicatedServerKey('yingdi'),
-		key2=GetDedicatedServerKeyV2('yingdi'),
-		version = '2.0',
-	    end_time=t.end_time,
-	    duration=dur,
-	    players={},
-	    chess_detail=GameRules:GetGameModeEntity().upload_detail_stat,
-	}
-
-	for user,data in pairs(t.mmr_info) do
-	    local insertdata = {}
-	    insertdata["account_id"] = user
-	    insertdata["rank"] = data.rank
-	    insertdata["total"] = data.total
-	    insertdata["level"] = data.level
-	    insertdata["chess"] = GameRules:GetGameModeEntity().stat_info[user]['chess_lineup']
-	    insertdata["win_round"] = GameRules:GetGameModeEntity().stat_info[user]['win_round']
-	    insertdata["lose_round"] = GameRules:GetGameModeEntity().stat_info[user]['lose_round']
-	    insertdata["kills"] = GameRules:GetGameModeEntity().stat_info[user]['kills']
-	    insertdata["deaths"] = GameRules:GetGameModeEntity().stat_info[user]['deaths']
-	    insertdata["gold"] = GameRules:GetGameModeEntity().stat_info[user]['gold']
-	    insertdata["candy"] = GameRules:GetGameModeEntity().stat_info[user]['candy']
-	    insertdata["duration"] = GameRules:GetGameModeEntity().stat_info[user]['duration']
-	    table.insert(yingdi_data['players'],insertdata)
-	end
-	SendHTTPPost(yingdi_url,yingdi_data)
-end
 function CollectAmazonData(t,dur)
 	local base_data = {
 		version = '0.1',
@@ -9823,99 +9868,6 @@ function CollectAmazonData(t,dur)
 	    table.insert(base_data['players'],insertdata)
 	end
 	return base_data
-end
-function SendPWData(t,dur)
-	local pw_url = "http://52.81.131.74:5140"
-	local pw_data = {
-		key=GetDedicatedServerKey('perfectworld'),
-		key2=GetDedicatedServerKeyV2('perfectworld'),
-		version = '2.0',
-	    end_time=t.end_time,
-	    duration=dur,
-	    players={},
-	    chess_detail=GameRules:GetGameModeEntity().upload_detail_stat,
-	}
-
-	for user,data in pairs(t.mmr_info) do
-	    local insertdata = {}
-	    insertdata["account_id"] = user
-	    insertdata["rank"] = data.rank
-	    insertdata["total"] = data.total
-	    insertdata["level"] = data.level
-	    insertdata["chess"] = GameRules:GetGameModeEntity().stat_info[user]['chess_lineup']
-	    insertdata["win_round"] = GameRules:GetGameModeEntity().stat_info[user]['win_round']
-	    insertdata["lose_round"] = GameRules:GetGameModeEntity().stat_info[user]['lose_round']
-	    insertdata["kills"] = GameRules:GetGameModeEntity().stat_info[user]['kills']
-	    insertdata["deaths"] = GameRules:GetGameModeEntity().stat_info[user]['deaths']
-	    insertdata["gold"] = GameRules:GetGameModeEntity().stat_info[user]['gold']
-	    insertdata["candy"] = GameRules:GetGameModeEntity().stat_info[user]['candy']
-	    insertdata["duration"] = GameRules:GetGameModeEntity().stat_info[user]['duration']
-	    table.insert(pw_data['players'],insertdata)
-	end
-	SendHTTPPost(pw_url,pw_data)
-end
-function SendMaxData(t,dur)
-	local max_url = "http://api.xiaoheihe.cn/api/rpg/autochess/upload/?apikey=69f395b2-f7e8-4032-bd0c-41200cfe9dad"
-	local max_data = {
-	    key=GetDedicatedServerKey('max'),
-	    key2=GetDedicatedServerKey('heihe'),
-	    key3=GetDedicatedServerKeyV2('heihe'),
-	    version="2.0",
-	    match_id=t.end_time,
-	    end_time=t.end_time,
-	    duration=dur,
-	    players={},
-	    chess_detail=GameRules:GetGameModeEntity().upload_detail_stat,
-	}
-
-	for user,data in pairs(t.mmr_info) do
-	    local insertdata = {}
-	    insertdata["account_id"] = user
-	    insertdata["rank"] = data.rank
-	    insertdata["total"] = data.total
-	    insertdata["level"] = data.level
-	    insertdata["chess"] = GameRules:GetGameModeEntity().stat_info[user]['chess_lineup']
-	    insertdata["win_round"] = GameRules:GetGameModeEntity().stat_info[user]['win_round']
-	    insertdata["lose_round"] = GameRules:GetGameModeEntity().stat_info[user]['lose_round']
-	    insertdata["kills"] = GameRules:GetGameModeEntity().stat_info[user]['kills']
-	    insertdata["deaths"] = GameRules:GetGameModeEntity().stat_info[user]['deaths']
-	    insertdata["gold"] = GameRules:GetGameModeEntity().stat_info[user]['gold']
-	    insertdata["candy"] = GameRules:GetGameModeEntity().stat_info[user]['candy']
-	    insertdata["duration"] = GameRules:GetGameModeEntity().stat_info[user]['duration']
-	    table.insert(max_data['players'],insertdata)
-	end
-	SendHTTPPost(max_url,max_data)
-end
-
-function SendRepost(t,dur)
-	local max_url = "http://repost.ppbizon.com/postdata"
-	local max_data = {
-	    key=GetDedicatedServerKeyV2('repost'),
-	    version="2.0",
-	    match_id=t.end_time,
-	    end_time=t.end_time,
-	    duration=dur,
-	    players={},
-	    chess_detail=GameRules:GetGameModeEntity().upload_detail_stat,
-	}
-
-	for user,data in pairs(t.mmr_info) do
-	    local insertdata = {}
-	    insertdata["account_id"] = user
-	    insertdata["rank"] = data.rank
-	    insertdata["total"] = data.total
-	    insertdata["level"] = data.level
-	    insertdata["chess"] = GameRules:GetGameModeEntity().stat_info[user]['chess_lineup']
-	    insertdata["win_round"] = GameRules:GetGameModeEntity().stat_info[user]['win_round']
-	    insertdata["lose_round"] = GameRules:GetGameModeEntity().stat_info[user]['lose_round']
-	    insertdata["kills"] = GameRules:GetGameModeEntity().stat_info[user]['kills']
-	    insertdata["deaths"] = GameRules:GetGameModeEntity().stat_info[user]['deaths']
-	    insertdata["gold"] = GameRules:GetGameModeEntity().stat_info[user]['gold']
-	    insertdata["candy"] = GameRules:GetGameModeEntity().stat_info[user]['candy']
-	    insertdata["duration"] = GameRules:GetGameModeEntity().stat_info[user]['duration']
-	    table.insert(max_data['players'],insertdata)
-	end
-	SendHTTPPost(max_url,max_data)
 end
 
 function SendHTTPPost(url,game_data)
@@ -10373,6 +10325,10 @@ end
 
 --从某个玩家的手牌中寻找两个chess棋子，返回：有几个，第一个，第二个，第三个
 function Find2SameChessInHand(caster,chess)
+	if chess == 'chess_io1' then
+		--2星小精灵不参与合成
+		return 0,nil,nil,nil
+	end
 	local count = 0
 	local chess1 = nil
 	local chess2 = nil
@@ -10777,32 +10733,32 @@ function SendAmazonData(ctx,amzdate,datestamp)
 	}
 	local body_data = json.encode(data)
 	
-	-- local method = 'POST'
-	-- local service = 'kinesis'
-	-- local host = 'kinesis.cn-north-1.amazonaws.com.cn'
-	-- local region = 'cn-north-1'
-	-- local endpoint = 'https://kinesis.cn-north-1.amazonaws.com.cn'
-	-- local request_parameters = ""
-	-- local enc_AWS_ACCESS_KEY_ID = "25E104260341F0B8192CCFA4A909572DCE0898BE77EF35E955F70D67AB5491C5"
-	-- local AWS_ACCESS_KEY_ID = aeslua.decrypt(GetDedicatedServerKeyV2('bsl,bgbxh'),string.fromhex(enc_AWS_ACCESS_KEY_ID))
-	-- local access_key = AWS_ACCESS_KEY_ID
-	-- local enc_AWS_SECRET_ACCESS_KEY = '1321E5E71E43988F4F0CD5A14D15FCD658C2262EE44B2D7007BEA27A6D4A4ECD90FB0A6CAEA410DAD933F423FD9E8EAD'
-	-- local AWS_SECRET_ACCESS_KEY = aeslua.decrypt(GetDedicatedServerKeyV2('bsl,bgbxh'),string.fromhex(enc_AWS_SECRET_ACCESS_KEY))
-	-- local secret_key = AWS_SECRET_ACCESS_KEY
-
 	local method = 'POST'
 	local service = 'kinesis'
-	local host = 'kinesis.us-east-2.amazonaws.com'
-	local region = 'us-east-2'
-	local endpoint = 'https://kinesis.us-east-2.amazonaws.com'
+	local host = 'kinesis.cn-north-1.amazonaws.com.cn'
+	local region = 'cn-north-1'
+	local endpoint = 'https://kinesis.cn-north-1.amazonaws.com.cn'
 	local request_parameters = ""
-
-	local enc_AWS_ACCESS_KEY_ID = "03FAE7D6D1B989EAD761DFDEE153147317FD60EB75113C7B859D842A31B69E0E"
+	local enc_AWS_ACCESS_KEY_ID = "25E104260341F0B8192CCFA4A909572DCE0898BE77EF35E955F70D67AB5491C5"
 	local AWS_ACCESS_KEY_ID = aeslua.decrypt(GetDedicatedServerKeyV2('bsl,bgbxh'),string.fromhex(enc_AWS_ACCESS_KEY_ID))
 	local access_key = AWS_ACCESS_KEY_ID
-	local enc_AWS_SECRET_ACCESS_KEY = '315C8904ECCF3A4ADA7B611D8D153F7D029536A8B090336BB916C83E8F3A763E8CB2F4F0259DA73FDDD61DD7FB11FA9A'
+	local enc_AWS_SECRET_ACCESS_KEY = '1321E5E71E43988F4F0CD5A14D15FCD658C2262EE44B2D7007BEA27A6D4A4ECD90FB0A6CAEA410DAD933F423FD9E8EAD'
 	local AWS_SECRET_ACCESS_KEY = aeslua.decrypt(GetDedicatedServerKeyV2('bsl,bgbxh'),string.fromhex(enc_AWS_SECRET_ACCESS_KEY))
 	local secret_key = AWS_SECRET_ACCESS_KEY
+
+	-- local method = 'POST'
+	-- local service = 'kinesis'
+	-- local host = 'kinesis.us-east-2.amazonaws.com'
+	-- local region = 'us-east-2'
+	-- local endpoint = 'https://kinesis.us-east-2.amazonaws.com'
+	-- local request_parameters = ""
+
+	-- local enc_AWS_ACCESS_KEY_ID = "03FAE7D6D1B989EAD761DFDEE153147317FD60EB75113C7B859D842A31B69E0E"
+	-- local AWS_ACCESS_KEY_ID = aeslua.decrypt(GetDedicatedServerKeyV2('bsl,bgbxh'),string.fromhex(enc_AWS_ACCESS_KEY_ID))
+	-- local access_key = AWS_ACCESS_KEY_ID
+	-- local enc_AWS_SECRET_ACCESS_KEY = '315C8904ECCF3A4ADA7B611D8D153F7D029536A8B090336BB916C83E8F3A763E8CB2F4F0259DA73FDDD61DD7FB11FA9A'
+	-- local AWS_SECRET_ACCESS_KEY = aeslua.decrypt(GetDedicatedServerKeyV2('bsl,bgbxh'),string.fromhex(enc_AWS_SECRET_ACCESS_KEY))
+	-- local secret_key = AWS_SECRET_ACCESS_KEY
 
 	local canonical_uri = '/'
 	local canonical_querystring = request_parameters
