@@ -770,6 +770,7 @@ function DAC:InitGameMode()
     GameRules:GetGameModeEntity().steamid2name = {}
     GameRules:GetGameModeEntity().stat_info = {}
     GameRules:GetGameModeEntity().send_info = {}
+    GameRules:GetGameModeEntity().send_status = {}
     GameRules:GetGameModeEntity().show_damage = false
     GameRules:GetGameModeEntity().upload_lineup = {}
     GameRules:GetGameModeEntity().upload_detail_stat = {}
@@ -4687,55 +4688,6 @@ function SyncHP(hero)
 		
 		hero:ForceKill(false)
 
-		local url = "https://autochess.ppbizon.com/game/post/one/@"..GameRules:GetGameModeEntity().steamidlist.."@"..hero.steam_id.."@"..GameRules:GetGameModeEntity().death_rank.."?hehe="..RandomInt(1,10000).."&duration="..math.floor(GameRules:GetGameTime() - GameRules:GetGameModeEntity().START_TIME)..GetSendKey()
-		GameRules:GetGameModeEntity().send_info[hero.steam_id] = {
-			account_id = hero.steam_id,
-			rank = GameRules:GetGameModeEntity().death_rank,
-			total = PlayerResource:GetPlayerCount(),
-			level = GameRules:GetGameModeEntity().stat_info[hero.steam_id]['mmr_level'],
-			candy = 0,
-			chess = GameRules:GetGameModeEntity().stat_info[hero.steam_id]['chess_lineup'],
-			win_round = GameRules:GetGameModeEntity().stat_info[hero.steam_id]['win_round'],
-			lose_round = GameRules:GetGameModeEntity().stat_info[hero.steam_id]['lose_round'],
-			kills = GameRules:GetGameModeEntity().stat_info[hero.steam_id]['kills'],
-			deaths = GameRules:GetGameModeEntity().stat_info[hero.steam_id]['deaths'],
-			gold = GameRules:GetGameModeEntity().stat_info[hero.steam_id]['gold'],
-			duration = GameRules:GetGameModeEntity().stat_info[hero.steam_id]['duration']
-		}
-
-		SendHTTP(url.."&from=SyncHP", function(t)
-			if t.err == 0 then
-				prt('RANK GAME OK!')
-				local v = t.mmr_info
-				if GameRules:GetGameModeEntity().stat_info[v.userid] ~= nil then
-					prt(v.userid..'eliminated! ranked '..v.rank..'/'..v.total..' level: '..v.level..' candy: '..v.candy)
-					GameRules:GetGameModeEntity().send_info[v.userid]['account_id'] = v.userid
-					GameRules:GetGameModeEntity().send_info[v.userid]['rank'] = v.rank
-					GameRules:GetGameModeEntity().send_info[v.userid]['total'] = v.total
-					GameRules:GetGameModeEntity().send_info[v.userid]['level'] = v.level
-					GameRules:GetGameModeEntity().send_info[v.userid]['candy'] = v.candy or 0
-
-					GameRules:GetGameModeEntity().send_time = {
-						end_time = t.end_time,
-						year = t.year,
-						month = t.month,
-						date = t.date,
-						hour = t.hour,
-						minute = t.minute,
-						second = t.second,
-					}
-				end
-
-			end
-		end)
-		-- if GameRules:GetGameModeEntity().death_stack == nil then
-		-- 	GameRules:GetGameModeEntity().death_stack = hero.steam_id
-		-- else
-		-- 	if string.find(GameRules:GetGameModeEntity().death_stack,hero.steam_id) == nil then
-		-- 		GameRules:GetGameModeEntity().death_stack = hero.steam_id..','..GameRules:GetGameModeEntity().death_stack
-		-- 	end
-		-- end
-
 		--统计还有多少活着的玩家
 		local live_count = 0
 		local last_hero = nil
@@ -4758,14 +4710,28 @@ function SyncHP(hero)
 			-- EmitGlobalSound("diretide_eventstart_Stinger")
 			EmitGlobalSound("diretide_sugarrush_Stinger")
 		end
-
-		if live_count == 1 and PlayerResource:GetPlayerCount() > 1 then
-			--rank 1st place player
-			local url = "https://autochess.ppbizon.com/game/post/one/@"..GameRules:GetGameModeEntity().steamidlist.."@"..last_hero.steam_id.."@1?hehe="..RandomInt(1,10000).."&duration="..math.floor(GameRules:GetGameTime() - GameRules:GetGameModeEntity().START_TIME)..GetSendKey()
-			prt('RANK 1st TRY!')
+		if live_count > 1 and PlayerResource:GetPlayerCount() > 1 then
+			if GameRules:GetGameModeEntity().send_status[hero.steam_id] ~= nil then
+				return
+			end
+			local url = "https://autochess.ppbizon.com/game/post/one/@"..GameRules:GetGameModeEntity().steamidlist.."@"..hero.steam_id.."@"..(GameRules:GetGameModeEntity().death_rank+1).."?hehe="..RandomInt(1,10000).."&duration="..math.floor(GameRules:GetGameTime() - GameRules:GetGameModeEntity().START_TIME)..GetSendKey()
+			GameRules:GetGameModeEntity().send_info[hero.steam_id] = {
+				account_id = hero.steam_id,
+				rank = GameRules:GetGameModeEntity().death_rank,
+				total = PlayerResource:GetPlayerCount(),
+				level = GameRules:GetGameModeEntity().stat_info[hero.steam_id]['mmr_level'],
+				candy = 0,
+				chess = GameRules:GetGameModeEntity().stat_info[hero.steam_id]['chess_lineup'],
+				win_round = GameRules:GetGameModeEntity().stat_info[hero.steam_id]['win_round'],
+				lose_round = GameRules:GetGameModeEntity().stat_info[hero.steam_id]['lose_round'],
+				kills = GameRules:GetGameModeEntity().stat_info[hero.steam_id]['kills'],
+				deaths = GameRules:GetGameModeEntity().stat_info[hero.steam_id]['deaths'],
+				gold = GameRules:GetGameModeEntity().stat_info[hero.steam_id]['gold'],
+				duration = GameRules:GetGameModeEntity().stat_info[hero.steam_id]['duration']
+			}
+			GameRules:GetGameModeEntity().send_status[hero.steam_id] = 1
 			SendHTTP(url.."&from=SyncHP", function(t)
 				if t.err == 0 then
-					prt('RANK 1st OK!')
 					local v = t.mmr_info
 					if GameRules:GetGameModeEntity().stat_info[v.userid] ~= nil then
 						prt(v.userid..'eliminated! ranked '..v.rank..'/'..v.total..' level: '..v.level..' candy: '..v.candy)
@@ -4788,131 +4754,114 @@ function SyncHP(hero)
 
 				end
 			end)
+		end
+		if live_count <= 1 and PlayerResource:GetPlayerCount() > 1 then
+			--1st place player
+			local url = "https://autochess.ppbizon.com/game/post/one/@"..GameRules:GetGameModeEntity().steamidlist.."@"..GameRules:GetGameModeEntity().last_player_steamid.."@1?hehe="..RandomInt(1,10000).."&duration="..math.floor(GameRules:GetGameTime() - GameRules:GetGameModeEntity().START_TIME)..GetSendKey()
+			local tt = GameRules:GetGameModeEntity().stat_info[GameRules:GetGameModeEntity().last_player_steamid]
+			GameRules:GetGameModeEntity().send_info[GameRules:GetGameModeEntity().last_player_steamid] = {
+				account_id = GameRules:GetGameModeEntity().last_player_steamid,
+				rank = 1,
+				total = PlayerResource:GetPlayerCount(),
+				level = tt['mmr_level'],
+				candy = 0,
+				chess = tt['chess_lineup'],
+				win_round = tt['win_round'],
+				lose_round = tt['lose_round'],
+				kills = tt['kills'],
+				deaths = tt['deaths'],
+				gold = tt['gold'],
+				duration = tt['duration']
+			}
+			GameRules:GetGameModeEntity().send_status[GameRules:GetGameModeEntity().last_player_steamid] = 1
+			SendHTTP(url.."&from=SyncHP", function(t)
+				if t.err == 0 then
+					local v = t.mmr_info
+					if GameRules:GetGameModeEntity().stat_info[v.userid] ~= nil then
+						prt('1st place '..v.userid..'eliminated! ranked '..v.rank..'/'..v.total..' level: '..v.level..' candy: '..v.candy)
+						GameRules:GetGameModeEntity().send_info[v.userid]['account_id'] = v.userid
+						GameRules:GetGameModeEntity().send_info[v.userid]['rank'] = v.rank
+						GameRules:GetGameModeEntity().send_info[v.userid]['total'] = v.total
+						GameRules:GetGameModeEntity().send_info[v.userid]['level'] = v.level
+						GameRules:GetGameModeEntity().send_info[v.userid]['candy'] = v.candy or 0
 
-
-			local dur = math.floor(GameRules:GetGameTime() - GameRules:GetGameModeEntity().START_TIME)+3
-			SetStat(GameRules:GetGameModeEntity().last_player_hero:GetPlayerID(), 'duration', dur)
-			SetStat(GameRules:GetGameModeEntity().last_player_hero:GetPlayerID(), 'round', GameRules:GetGameModeEntity().battle_round)
-			-- last_hero:ForceKill(false)
-
-			--保存最终阵容
-			local lineup = ''
-			for _,v in pairs(GameRules:GetGameModeEntity().mychess[last_hero:GetTeam()]) do
-				if v ~= nil and v.chess ~= nil then 
-					lineup = lineup..v.chess..','
-				end
-			end
-			SetStat(last_hero:GetPlayerID(), 'chess_lineup',lineup)
-
-
-			Timers:CreateTimer(4,function()
-				local ready_2_post = false
-				local ready_1_post = false
-				for y,z in pairs(GameRules:GetGameModeEntity().send_info) do
-					if z.rank == 1 then
-						ready_1_post = true
-					end
-					if z.rank == 2 then
-						ready_2_post = true
-					end
-				end
-				prt('ready_1_post'..tostring(ready_1_post)..'ready_2_post'..tostring(ready_2_post))
-				if ready_2_post == true and ready_1_post == true then
-					local t = GameRules:GetGameModeEntity().send_time
-					local amzdate = string.format(
-					    '%s%s%sT%s%s%sZ',
-					    t.year, t.month, t.date, t.hour, t.minute, t.second
-					)
-					local datestamp = string.format(
-					    '%s%s%s',
-					    t.year, t.month, t.date
-					)
-					SendAmazonData(CollectAmazonData(dur),amzdate,datestamp)					
-				end
-				--展示结束面板，结束游戏！
-				Timers:CreateTimer(4,function()
-					GameRules:SetGameWinner(last_hero:GetTeam())
-				end)
-				Timers:CreateTimer(2,function()
-					PostGame()
-				end)
-			end)
-			prt('END GAME')
-			EmitGlobalSound("DOTAMusic_Diretide_Finale")
-
-			-- if GameRules:GetGameModeEntity().already_sent == nil then
-			-- 	GameRules:GetGameModeEntity().already_sent = 1
-				
-				-- GameRules:GetGameModeEntity().death_stack = GameRules:GetGameModeEntity().last_player_steamid..','..GameRules:GetGameModeEntity().death_stack
-				-- if GetMapName() ~= 'practice' then 
-				-- 	local url = "https://autochess.ppbizon.com/game/post/@"..GameRules:GetGameModeEntity().death_stack.."?hehe="..RandomInt(1,10000).."&winner_lineup="..lineup.."&duration="..dur..GetSendKey()
-				-- 	SendHTTP(url.."&from=SyncHP", function(t)
-				-- 		if t.err == 0 then
-				-- 			prt('POST GAME OK!')
-				-- 			for u,v in pairs(t.mmr_info) do
-				-- 				GameRules:GetGameModeEntity().stat_info[u]['mmr_level'] = v.level
-				-- 				GameRules:GetGameModeEntity().stat_info[u]['queen_rank'] = v.queen_rank
-				-- 				GameRules:GetGameModeEntity().stat_info[u]['candy'] = v.candy or 0
-				-- 				GameRules:GetGameModeEntity().stat_info[u]['delta'] = v.delta or 0
-				-- 			end
-				-- 			local amzdate = string.format(
-				-- 			    '%s%s%sT%s%s%sZ',
-				-- 			    t.year, t.month, t.date, t.hour, t.minute, t.second
-				-- 			)
-				-- 			local datestamp = string.format(
-				-- 			    '%s%s%s',
-				-- 			    t.year, t.month, t.date
-				-- 			)
-				-- 			--展示结束面板，结束游戏！
-				-- 			Timers:CreateTimer(6,function()
-				-- 				GameRules:SetGameWinner(last_hero:GetTeam())
-				-- 			end)
-				-- 			Timers:CreateTimer(3,function()
-				-- 				PostGame()
-				-- 			end)
-				-- 			SendAmazonData(CollectAmazonData(t,dur),amzdate,datestamp)
-				-- 		else
-				-- 			prt('POST GAME ERROR : '..t.err)
-				-- 			PostGame()
-				-- 			Timers:CreateTimer(3,function()
-				-- 				GameRules:SetGameWinner(last_hero:GetTeam())
-								
-				-- 			end)
-				-- 		end
-				-- 	end, function()
-				-- 		prt('POST GAME ERROR')
-				-- 		PostGame()
-				-- 		Timers:CreateTimer(3,function()
-				-- 			GameRules:SetGameWinner(last_hero:GetTeam())
-							
-				-- 		end)
-				-- 	end)
-				-- else
-				-- 	PostGame()
-				-- 	Timers:CreateTimer(5,function()
-				-- 		GameRules:SetGameWinner(last_hero:GetTeam())
-						
-				-- 	end)
-				-- end
-
-				--提交阵容
-				if table.maxn(GameRules:GetGameModeEntity().upload_lineup) > 0 then
-					local str = ''
-					for i,v in pairs(GameRules:GetGameModeEntity().upload_lineup) do
-						str = str..json.encode(v)..'|'
-					end
-					str = string.sub(str,1,-2)
-					local url_up = "https://autochess.ppbizon.com/lineup/add?lineups="..str.."&hehe="..RandomInt(1,10000)..GetSendKey()
-					local req_up = CreateHTTPRequestScriptVM("GET", url_up)
-					req_up:SetHTTPRequestAbsoluteTimeoutMS(20000)
-					req_up:Send(function (result)
-						local t_up = json.decode(result["Body"])
-						if t_up.err == 0 then
-							prt('SAVE CLOUD LINEUP OK!')
+						GameRules:GetGameModeEntity().send_time = {
+							end_time = t.end_time,
+							year = t.year,
+							month = t.month,
+							date = t.date,
+							hour = t.hour,
+							minute = t.minute,
+							second = t.second,
+						}
+						local dur = math.floor(GameRules:GetGameTime() - GameRules:GetGameModeEntity().START_TIME)+3
+						SetStat(GameRules:GetGameModeEntity().last_player_hero:GetPlayerID(), 'duration', dur)
+						SetStat(GameRules:GetGameModeEntity().last_player_hero:GetPlayerID(), 'round', GameRules:GetGameModeEntity().battle_round)
+						--保存最终阵容
+						local lineup = ''
+						for _,v in pairs(GameRules:GetGameModeEntity().mychess[last_hero:GetTeam()]) do
+							if v ~= nil and v.chess ~= nil then 
+								lineup = lineup..v.chess..','
+							end
 						end
-					end)
+						SetStat(last_hero:GetPlayerID(), 'chess_lineup',lineup)
+
+						Timers:CreateTimer(4,function()
+							local ready_2_post = false
+							local ready_1_post = false
+							for y,z in pairs(GameRules:GetGameModeEntity().send_info) do
+								if z.rank == 1 then
+									ready_1_post = true
+								end
+								if z.rank == 2 then
+									ready_2_post = true
+								end
+							end
+							prt('ready_1_post'..tostring(ready_1_post)..'ready_2_post'..tostring(ready_2_post))
+							if ready_2_post == true and ready_1_post == true then
+								local t = GameRules:GetGameModeEntity().send_time
+								local amzdate = string.format(
+								    '%s%s%sT%s%s%sZ',
+								    t.year, t.month, t.date, t.hour, t.minute, t.second
+								)
+								local datestamp = string.format(
+								    '%s%s%s',
+								    t.year, t.month, t.date
+								)
+								SendAmazonData(CollectAmazonData(dur),amzdate,datestamp)					
+							end
+							--展示结束面板，结束游戏！
+							Timers:CreateTimer(4,function()
+								GameRules:SetGameWinner(last_hero:GetTeam())
+							end)
+							Timers:CreateTimer(2,function()
+								PostGame()
+							end)
+						end)
+						prt('END GAME')
+						EmitGlobalSound("DOTAMusic_Diretide_Finale")
+
+
+						--提交阵容
+						if table.maxn(GameRules:GetGameModeEntity().upload_lineup) > 0 then
+							local str = ''
+							for i,v in pairs(GameRules:GetGameModeEntity().upload_lineup) do
+								str = str..json.encode(v)..'|'
+							end
+							str = string.sub(str,1,-2)
+							local url_up = "https://autochess.ppbizon.com/lineup/add?lineups="..str.."&hehe="..RandomInt(1,10000)..GetSendKey()
+							local req_up = CreateHTTPRequestScriptVM("GET", url_up)
+							req_up:SetHTTPRequestAbsoluteTimeoutMS(20000)
+							req_up:Send(function (result)
+								local t_up = json.decode(result["Body"])
+								if t_up.err == 0 then
+									prt('SAVE CLOUD LINEUP OK!')
+								end
+							end)
+						end
+					end
 				end
-			-- end
+			end)
 		end
 		if live_count == 0 and PlayerResource:GetPlayerCount() == 1 then
 			EmitGlobalSound("DOTAMusic_Diretide_Finale")
@@ -10877,10 +10826,13 @@ function SendAmazonData(ctx,amzdate,datestamp)
     req:SetHTTPRequestHeaderValue("X-Amz-Target", "Kinesis_20131202.PutRecord")
     req:SetHTTPRequestHeaderValue("Authorization", authorization_header)
     req:SetHTTPRequestRawPostBody("application/x-amz-json-1.1",body_data)
+    prt('ready to send')
     req:Send(function(res)
+    	prt('returned')
         if res.StatusCode ~= 200 or not res.Body then
             return
         end
+        prt('returned ok')
     end)
 end
 
