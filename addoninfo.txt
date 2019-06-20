@@ -1,11 +1,15 @@
 "AddonInfo"
 {
-	"maps"			"normal"
+	"maps"			"1x8 2x4"
 	"IsPlayable"	"1"
-	"normal"
+	"1x8"
 	{
 		"MaxPlayers"                    "8"
 	}
+    "2x4"
+    {
+        "MaxPlayers"                    "8"
+    }
 	"Default_Keys"
     {
         "01"
