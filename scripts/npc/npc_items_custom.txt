@@ -491,7 +491,7 @@
 					"Lifesteal"
 					{
 						"Target"	"ATTACKER"
-						"LifestealPercent"	"5"
+						"LifestealPercent"	"10"
 					}
 					"AttachEffect"
 					{

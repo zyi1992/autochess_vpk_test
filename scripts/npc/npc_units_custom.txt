@@ -26984,7 +26984,7 @@
 	"bm_beast2"
 	{
 		"BaseClass"	"npc_dota_creature"
-		"Ability1"	""
+		"Ability1"	"lightning_attack"
 		"Ability2"	""
 		"Ability3"	""
 		"Ability4"	""
@@ -27038,7 +27038,7 @@
 	"bm_beast3"
 	{
 		"BaseClass"	"npc_dota_creature"
-		"Ability1"	""
+		"Ability1"	"bm_bear_taunt"
 		"Ability2"	""
 		"Ability3"	""
 		"Ability4"	""

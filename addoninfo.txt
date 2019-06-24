@@ -1,12 +1,16 @@
 "AddonInfo"
 {
-	"maps"			"1x8 2x4"
+	"maps"			"ranked_1x8 casual_1x8 casual_2x4"
 	"IsPlayable"	"1"
-	"1x8"
+	"ranked_1x8"
 	{
 		"MaxPlayers"                    "8"
 	}
-    "2x4"
+    "casual_1x8"
+    {
+        "MaxPlayers"                    "8"
+    }
+    "casual_2x4"
     {
         "MaxPlayers"                    "8"
     }

@@ -8122,7 +8122,7 @@
 				"IsDebuff"	"1"
 				"Properties"
 				{
-					"MODIFIER_PROPERTY_MAGICAL_RESISTANCE_BONUS"	"-45"
+					"MODIFIER_PROPERTY_MAGICAL_RESISTANCE_BONUS"	"-40"
 				}
 				"Passive"	"1"
 				"EffectName"	"particles/items2_fx/veil_of_discord_debuff.vpcf"
@@ -8433,7 +8433,10 @@
 			{
 				"TextureName"	"drow_ranger_marksmanship"
 				"IsDebuff"	"0"
-				"Properties"	{}
+				"Properties"
+				{
+					"MODIFIER_PROPERTY_BASEATTACK_BONUSDAMAGE"	"30"
+				}
 				"IsBuff"	"1"
 				"States"	{}
 				"Passive"	"1"
@@ -8445,14 +8448,13 @@
 					{
 						"OnSuccess"
 						{
-							"RunScript"
+							"ApplyModifier"
 							{
-								"Target"	"TARGET"
-								"ScriptFile"	"scripts/vscripts/addon_game_mode.lua"
-								"Function"	"ExtraAttack"
+								"Target"	"CASTER"
+								"ModifierName"	"modifier_is_hunter_buff_jingzhun"
 							}
 						}
-						"Chance"	"25"
+						"Chance"	"60"
 						"PseudoRandom"	"DOTA_PSEUDO_RANDOM_PHANTOMASSASSIN_CRIT"
 					}
 				}
@@ -8466,11 +8468,6 @@
 				}
 				"OnAttackLanded"
 				{
-					"RemoveModifier"
-					{
-						"Target"	"CASTER"
-						"ModifierName"	"modifier_is_hunter_buff_jingzhun"
-					}
 					"FireEffect"
 					{
 						"Target"	"TARGET"
@@ -8481,6 +8478,11 @@
 					{
 						"Target"	"TARGET"
 						"EffectName"	"Damage_Projectile.Player"
+					}
+					"RemoveModifier"
+					{
+						"Target"	"CASTER"
+						"ModifierName"	"modifier_is_hunter_buff_jingzhun"
 					}
 				}
 				"IsHidden"	"1"
@@ -8507,7 +8509,10 @@
 			{
 				"TextureName"	"drow_ranger_marksmanship"
 				"IsDebuff"	"0"
-				"Properties"	{}
+				"Properties"
+				{
+					"MODIFIER_PROPERTY_BASEATTACK_BONUSDAMAGE"	"50"
+				}
 				"IsBuff"	"1"
 				"States"	{}
 				"Passive"	"1"
@@ -8519,27 +8524,13 @@
 					{
 						"OnSuccess"
 						{
-							"RunScript"
+							"ApplyModifier"
 							{
-								"Target"	"TARGET"
-								"ScriptFile"	"scripts/vscripts/addon_game_mode.lua"
-								"Function"	"ExtraAttack"
-							}
-							"DelayedAction"
-							{
-								"Action"
-								{
-									"RunScript"
-									{
-										"Target"	"TARGET"
-										"ScriptFile"	"scripts/vscripts/addon_game_mode.lua"
-										"Function"	"ExtraAttack"
-									}
-								}
-								"Delay"	"0.5"
+								"Target"	"CASTER"
+								"ModifierName"	"modifier_is_hunter_buff_jingzhun_plus"
 							}
 						}
-						"Chance"	"35"
+						"Chance"	"100"
 						"PseudoRandom"	"DOTA_PSEUDO_RANDOM_PHANTOMASSASSIN_CRIT"
 					}
 				}
@@ -8553,11 +8544,6 @@
 				}
 				"OnAttackLanded"
 				{
-					"RemoveModifier"
-					{
-						"Target"	"CASTER"
-						"ModifierName"	"modifier_is_hunter_buff_jingzhun_plus"
-					}
 					"FireEffect"
 					{
 						"Target"	"TARGET"
@@ -8568,6 +8554,11 @@
 					{
 						"Target"	"TARGET"
 						"EffectName"	"Damage_Projectile.Player"
+					}
+					"RemoveModifier"
+					{
+						"Target"	"CASTER"
+						"ModifierName"	"modifier_is_hunter_buff_jingzhun_plus"
 					}
 				}
 				"IsHidden"	"1"
@@ -9113,6 +9104,42 @@
 				"Passive"	"1"
 				"EffectAttachType"	"follow_overhead"
 				"Attributes"	"MODIFIER_ATTRIBUTE_MULTIPLE"
+			}
+		}
+	}
+
+	"is_wizard_buff"
+	{
+		"BaseClass"	"ability_datadriven"
+		"AbilityTextureName"	"grimstroke_ink_creature"
+		"AbilityBehavior"	"DOTA_ABILITY_BEHAVIOR_HIDDEN | DOTA_ABILITY_BEHAVIOR_PASSIVE"
+		"AbilityUnitTargetType"	"DOTA_UNIT_TARGET_BASIC"
+		"AbilityUnitTargetTeam"	"DOTA_UNIT_TARGET_TEAM_FRIENDLY"
+		"precache"
+		{
+			"particle"	"particles/econ/events/ti7/hero_levelup_ti7_flash_hit_magic.vpcf"
+		}
+		"Modifiers"
+		{
+			"modifier_is_wizard_buff"
+			{
+				"TextureName"	"grimstroke_ink_creature"
+				"IsDebuff"	"0"
+				"Properties"	{}
+				"IsBuff"	"1"
+				"States"	{}
+				"Passive"	"1"
+				"EffectAttachType"	"follow_origin"
+				"IsHidden"	"1"
+				"EffectName"	"particles/econ/events/ti7/hero_levelup_ti7_flash_hit_magic.vpcf"
+				"OnCreated"
+				{
+					"FireSound"
+					{
+						"Target"	"CASTER"
+						"EffectName"	"wizard.buff"
+					}
+				}
 			}
 		}
 	}
@@ -15058,7 +15085,7 @@
 			"01"
 			{
 				"var_type"	"FIELD_INTEGER"
-				"physical_damage_reduction"	"30 50 70"
+				"physical_damage_reduction"	"30 45 60"
 			}
 			"02"
 			{
@@ -15068,7 +15095,7 @@
 			"03"
 			{
 				"var_type"	"FIELD_INTEGER"
-				"physical_damage_reduction_side"	"15 25 35"
+				"physical_damage_reduction_side"	"15 23 30"
 			}
 			"04"
 			{
@@ -16013,6 +16040,82 @@
 					"MODIFIER_PROPERTY_ATTACK_RANGE_BONUS"	"391"
 				}
 				"IsHidden"	"1"
+			}
+		}
+	}
+
+	"lightning_attack"
+	{
+		"BaseClass"	"ability_datadriven"
+		"AbilityTextureName"	"harpy_storm_chain_lightning"
+		"AbilityBehavior"	"DOTA_ABILITY_BEHAVIOR_HIDDEN | DOTA_ABILITY_BEHAVIOR_PASSIVE"
+		"precache"
+		{
+			"soundfile"	"soundevents/game_sounds_heroes/game_sounds_disruptor.vsndevts"
+		}
+		"Modifiers"
+		{
+			"modifier_lightning_attack"
+			{
+				"Passive"	"1"
+				"OnAttackStart"
+				{
+					"ApplyModifier"
+					{
+						"Target"	"CASTER"
+						"ModifierName"	"modifier_lightning_attack_animation"
+						"Duration"	"2"
+					}
+					"FireSound"
+					{
+						"Target"	"CASTER"
+						"EffectName"	"Hero_Disruptor.ThunderStrike.Cast"
+					}
+				}
+				"IsHidden"	"1"
+				"Properties"	{}
+			}
+			"modifier_lightning_attack_animation"
+			{
+				"OverrideAnimation"	"ACT_DOTA_SPAWN"
+				"Properties"	{}
+			}
+		}
+	}
+
+	"bm_bear_taunt"
+	{
+		"BaseClass"	"ability_datadriven"
+		"AbilityTextureName"	"modifier_cny_beast_aegis"
+		"AbilityBehavior"	"DOTA_ABILITY_BEHAVIOR_NO_TARGET"
+		"AbilityUnitTargetType"	"DOTA_UNIT_TARGET_HERO | DOTA_UNIT_TARGET_BASIC"
+		"AbilityUnitTargetTeam"	"DOTA_UNIT_TARGET_TEAM_ENEMY"
+		"MaxLevel"	"1"
+		"AbilityCooldown"	"60"
+		"AbilityManaCost"	"0"
+		"precache"
+		{
+			"soundfile"	"soundevents/game_sounds_heroes/game_sounds_beastmaster.vsndevts"
+			"particle"	"particles/units/heroes/hero_beastmaster/beastmaster_primal_roar.vpcf"
+		}
+		"OnSpellStart"
+		{
+			"RunScript"
+			{
+				"Target"	"CASTER"
+				"ScriptFile"	"scripts/vscripts/addon_game_mode.lua"
+				"Function"	"BmBearTaunt"
+			}
+			"FireSound"
+			{
+				"Target"	"CASTER"
+				"EffectName"	"Hero_Beastmaster.Primal_Roar"
+			}
+			"FireEffect"
+			{
+				"Target"	"CASTER"
+				"EffectName"	"particles/units/heroes/hero_beastmaster/beastmaster_primal_roar.vpcf"
+				"EffectAttachType"	"follow_overhead"
 			}
 		}
 	}
