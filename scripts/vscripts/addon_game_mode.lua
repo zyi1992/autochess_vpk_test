@@ -532,6 +532,14 @@ function Precache( context )
 		"particles/units/heroes/hero_grimstroke/grimstroke_soulchain_debuff.vpcf",
 		"soundevents/game_sounds_heroes/game_sounds_rubick.vsndevts",
 		"particles/econ/events/ti7/hero_levelup_ti7_flash_hit_magic.vpcf",
+		"particles/neutral_fx/roshan_valentines_attack_right_hearts.vpcf",
+		"particles/econ/items/wisp/wisp_tether_ti7_hearts.vpcf",
+		"effect/cp_heart/1.vpcf",
+		"particles/econ/events/ti9/high_five/high_five_lvl1_overhead.vpcf",
+		"particles/generic_hero_status/hero_levelup.vpcf",
+		"particles/econ/events/ti9/ti9_drums_musicnotes.vpcf",
+		"particles/econ/events/ti9/ti9_drums_musicnotes_b.vpcf",
+ 		"particles/econ/events/ti9/shovel/shovel_baby_roshan_spawn.vpcf",
 	} 
     print("Precache...")
 	local t=table.maxn(mxx)
@@ -986,7 +994,7 @@ function DAC:InitGameMode()
 	}
 	GameRules:GetGameModeEntity().game_status = 0
 	GameRules:GetGameModeEntity().prepare_timer = 35
-	GameRules:GetGameModeEntity().battle_timer = 60
+	GameRules:GetGameModeEntity().battle_timer = 50
     GameRules:GetGameModeEntity().myself = false
 	GameRules:GetGameModeEntity().is_stop = false
 	GameRules:GetGameModeEntity().isConnected = {}
@@ -2299,6 +2307,7 @@ function InitHeros()
 				}
 				hero.onduty_hero = onduty_hero
 				hero.steam_id = steam_id
+				hero.onduty_hero_effect = onduty_hero_effect
 
 				if user_info.is_crown ~= nil then
 					hero.is_crown = true
@@ -2856,7 +2865,7 @@ function StartAPrepareRound()
 		{ 
 			level = GameRules:GetGameModeEntity().level, 
 			damage_table = GameRules:GetGameModeEntity().damage_stat , 
-			time_this_level = 61 - GameRules:GetGameModeEntity().battle_timer, 
+			time_this_level = 51 - GameRules:GetGameModeEntity().battle_timer, 
 			hehe = RandomInt(1,100000) 
 		} 
 	)
@@ -4459,10 +4468,18 @@ function TransferChess(keys)
 	--跳过去
 	target.transfer_chess = true
 	target:SetForwardVector((HandIndex2Vector(ally_team_id,ally_hand_index) - target:GetAbsOrigin()):Normalized())
+
+	--头上的特效
+	play_particle("particles/econ/events/ti9/high_five/high_five_lvl1_overhead.vpcf",PATTACH_OVERHEAD_FOLLOW,target,8)
+
 	BlinkChessX({p=HandIndex2Vector(ally_team_id,ally_hand_index),caster=target})
 	FindRikiAndToggle(target)
 	AddAbilityAndSetLevel(target,'root_self')
 	AddAbilityAndSetLevel(target,'jiaoxie_wudi')
+
+	if IsUnitExist(ally_hero) then
+		CourierCP(caster, ally_hero)
+	end
 	
 	CustomGameEventManager:Send_ServerToTeam(ally_team_id,"chat_bubble",{
 		key = GetClientKey(ally_team_id),
@@ -5068,7 +5085,6 @@ function SyncHP(hero)
 	SetStat(hero:GetPlayerID(), 'round', GameRules:GetGameModeEntity().battle_round)
 	Timers:CreateTimer(0.3,function()
 		if hero:IsAlive() == false or hero:GetHealth() <= 0 then
-			GameRules:GetGameModeEntity().counterpart[hero:GetTeam()] = -1
 			SetRankingState(hero)
 			Timers:CreateTimer(0.5,function()
 				DealFuneralAffairs(hero)
@@ -5158,6 +5174,8 @@ end
 
 --根据玩家存活情况结算刚刚战败的玩家hero
 function SetRankingState(hero)
+	GameRules:GetGameModeEntity().counterpart[hero:GetTeam()] = -1
+	prt('battle count decreased to '..GameRules:GetGameModeEntity().battle_count)
 	--hero是刚刚战败的玩家
 	local live_count = 0
 	local last_hero = nil
@@ -5412,6 +5430,7 @@ function StartAPVERound()
 			Timers:CreateTimer(function()
 				if GameRules:GetGameModeEntity().battle_timer <= 0 then
 					GameRules:GetGameModeEntity().battle_count = GameRules:GetGameModeEntity().battle_count - 1
+					prt('battle count decreased to '..GameRules:GetGameModeEntity().battle_count)
 					EmitGlobalSound('crowd.lv_01')
 					AddStat(TeamId2Hero(m):GetPlayerID(),'draw_round')
 					ShowCombat({
@@ -5435,6 +5454,7 @@ function StartAPVERound()
 					end
 					if enemychess == 0 then
 						GameRules:GetGameModeEntity().battle_count = GameRules:GetGameModeEntity().battle_count - 1
+						prt('battle count decreased to '..GameRules:GetGameModeEntity().battle_count)
 						for a,b in pairs(n) do
 							AddAbilityAndSetLevel(b,'act_victory')
 							b.alreadywon = true
@@ -5471,6 +5491,7 @@ function StartAPVERound()
 							end
 							if enemychess_new == 0 then
 								GameRules:GetGameModeEntity().battle_count = GameRules:GetGameModeEntity().battle_count - 1
+								prt('battle count decreased to '..GameRules:GetGameModeEntity().battle_count)
 								for a,b in pairs(n) do
 									AddAbilityAndSetLevel(b,'act_victory')
 									b.alreadywon = true
@@ -5494,6 +5515,7 @@ function StartAPVERound()
 								AddStat(TeamId2Hero(m):GetPlayerID(),'draw_round')
 							else
 								GameRules:GetGameModeEntity().battle_count = GameRules:GetGameModeEntity().battle_count - 1
+								prt('battle count decreased to '..GameRules:GetGameModeEntity().battle_count)
 
 								local hero = TeamId2Hero(m)
 								local curr_hp = hero:GetHealth()
@@ -5797,7 +5819,6 @@ function StartAPVPRound()
 				StartWinLoseDrawTimerForTeam(team)
 			end
 		end
-		prt('本回合'..GameRules:GetGameModeEntity().battle_count..'个场地开战')
 	end)
 
 	--判断分是否战斗回合结束、进入准备回合的计时器（延时3秒）
@@ -5890,6 +5911,7 @@ function DrawARound(team)
 	end
 	
 	GameRules:GetGameModeEntity().battle_count = GameRules:GetGameModeEntity().battle_count - 1
+	prt('battle count decreased to '..GameRules:GetGameModeEntity().battle_count)
 
 	if TeamId2Hero(team).cloud_opp_name ~= nil then
 		ShowCombat({
@@ -5920,6 +5942,7 @@ function WinARound(team,mychess,my_last_chess)
 
 
 	GameRules:GetGameModeEntity().battle_count = GameRules:GetGameModeEntity().battle_count - 1
+	prt('battle count decreased to '..GameRules:GetGameModeEntity().battle_count)
 
 	--显示胜利！
 	local alive_units = GameRules:GetGameModeEntity().to_be_destory_list[team]
@@ -5988,7 +6011,9 @@ function WinARound(team,mychess,my_last_chess)
 end
 
 function LoseARound(team,enemychess_new)
+	
 	GameRules:GetGameModeEntity().battle_count = GameRules:GetGameModeEntity().battle_count - 1
+	prt('battle count decreased to '..GameRules:GetGameModeEntity().battle_count)
 
 	local hero = TeamId2Hero(team)
 	if hero == nil or hero:IsNull() == true or hero:IsAlive() == false then
@@ -6160,7 +6185,7 @@ function StartABattleRound()
 	GameRules:SetTimeOfDay(0.3)
 	
 	GameRules:GetGameModeEntity().game_status = 2
-	GameRules:GetGameModeEntity().battle_timer = 60
+	GameRules:GetGameModeEntity().battle_timer = 50
 
 	
 
@@ -8651,11 +8676,15 @@ function DAC:OnPlayerChat(keys)
 			SetStat(hero:GetPlayerID(), 'duration', dur)
 			SetStat(hero:GetPlayerID(), 'round', GameRules:GetGameModeEntity().battle_round)
 			Timers:CreateTimer(0.5,function()
+				GameRules:GetGameModeEntity().battle_count = GameRules:GetGameModeEntity().battle_count - 1
+				prt('dead battle count decreased to '..GameRules:GetGameModeEntity().battle_count)
 				DamageTeam(team, 999)
 				if GameRules:GetGameModeEntity().p2_mode == true and GetP2Ally(team) ~= nil then
 					--2P模式，队友分担伤害
 					SetStat(TeamId2Hero(GetP2Ally(team)):GetPlayerID(), 'duration', dur)
 					SetStat(TeamId2Hero(GetP2Ally(team)):GetPlayerID(), 'round', GameRules:GetGameModeEntity().battle_round)
+					GameRules:GetGameModeEntity().battle_count = GameRules:GetGameModeEntity().battle_count - 1
+					prt('dead battle count decreased to '..GameRules:GetGameModeEntity().battle_count)
 					DamageTeam(GetP2Ally(team), 999)
 				end
 			end)
@@ -9225,7 +9254,7 @@ function show_damage(keys)
 		if GameRules:GetGameModeEntity()['last_g_time'..team_id] == nil then
 			GameRules:GetGameModeEntity()['last_g_time'..team_id] = 0
 		end
-		local time_this_level = 61 - GameRules:GetGameModeEntity().battle_timer
+		local time_this_level = 51 - GameRules:GetGameModeEntity().battle_timer
 		if g_time - GameRules:GetGameModeEntity()['last_g_time'..team_id] > 1 then
 			GameRules:GetGameModeEntity()['last_g_time'..team_id] = g_time
 		end
@@ -9763,6 +9792,10 @@ function TriggerFrogGua(u)
 	 		Queue = 0 
 	 	}
 		ExecuteOrderFromTable(newOrder)
+
+		if dog:FindModifierByName('modifier_gs_give_fuhun') ~= nil then
+			CopyAbility2FuhunUnit(u,dog,"frog_voodoo")
+		end
 		-- u:FindAbilityByName("frog_voodoo"):StartCooldown(60)
 		-- Timers:CreateTimer(2,function()
 		-- 	u:RemoveAbility("frog_voodoo")
@@ -12653,7 +12686,57 @@ function DamageTeam(team, damage)
 	end
 end
 
-function LightningAttack(keys)
-	prt('LightningAttack')
-	
+function CourierCP(c1,c2)
+	local CP_GROUP = {
+		h001 = 1, h002 = 1, h309 = 1, h138 = 1, h316 = 1,
+		h117 = 2, h242 = 2, 
+		h422 = 3, h444 = 3, h445 = 3, h446 = 3,
+		h499 = 4, h322 = 4, h346 = 4, h347 = 4, h348 = 4, h349 = 4, h350 = 4, h351 = 4, h353 = 4, h438 = 4, h439 = 4,
+		h243 = 5, h120 = 5,
+		h405 = 6, h414 = 6,
+		h354 = 7, h355 = 7,
+		h410 = 8, h411 = 8,
+		h408 = 9, h409 = 9,
+		h412 = 10, h413 = 10,
+		h417 = 11, h418 = 11,
+		h419 = 12, h443 = 12,
+		h135 = 13, h110 = 13,
+		h320 = 14, h321 = 14,
+		h436 = 15, h437 = 15,
+		h226 = 16, h227 = 16, h228 = 16, h324 = 16, h325 = 16, h326 = 16, h423 = 16, h424 = 16, h425 = 16,
+		h399 = 17, h433 = 17,
+	}
+	local h1 = c1.onduty_hero
+	local h2 = c2.onduty_hero
+	if CP_GROUP[h1] == nil or CP_GROUP[h2] == nil or CP_GROUP[h1] ~= CP_GROUP[h2] then
+		return
+	end
+	local e1 = c1.onduty_hero_effect
+	local e2 = c2.onduty_hero_effect
+	if c1.cp_exp == nil then
+		c1.cp_exp = 1
+	else
+		c1.cp_exp = c1.cp_exp + 1
+	end
+	if c2.cp_exp == nil then
+		c2.cp_exp = 1
+	else
+		c2.cp_exp = c2.cp_exp + 1
+	end
+	local cp_level = -1
+
+	if CP_GROUP[h1] == CP_GROUP[h2] then
+		cp_level = cp_level + 1
+	end
+	if e1 == e2 then
+		cp_level = cp_level + 1
+	end
+	if c1.cp_exp >= 5 or c2.cp_exp >= 5 then
+		cp_level = cp_level + 1
+	end
+
+	if cp_level >= 0 then
+		play_particle("effect/cp_heart/"..cp_level..".vpcf",PATTACH_OVERHEAD_FOLLOW,c1,6)
+		play_particle("effect/cp_heart/"..cp_level..".vpcf",PATTACH_OVERHEAD_FOLLOW,c2,6)
+	end
 end

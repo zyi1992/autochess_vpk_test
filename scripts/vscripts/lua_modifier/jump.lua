@@ -50,7 +50,6 @@ function modifier_jump:OnDestroy()
         if GameRules:GetGameModeEntity().game_status == 1 or self:GetParent().transfer_chess == true then
             self:GetParent().transfer_chess = false
             self:GetParent():SetForwardVector(Vector(0,1,0))
-            play_particle("particles/econ/events/ti9/high_five/high_five_travel_model.vpcf",PATTACH_OVERHEAD_FOLLOW,self:GetParent(),3)
         end
     end
 end
