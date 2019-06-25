@@ -1847,6 +1847,8 @@ function DAC:InitGameMode()
 		h440 = "effect/liansai_dog/1.vpcf",
 		h441 = "effect/liansai_dog2/1.vpcf",
 		h446 = "effect/wabbit/lvl3.vpcf",
+		h244 = "effect/chongya/1econ/items/kunkka/kunkka_immortal/kunkka_immortal_ghost_ship_marker.vpcf",
+		-- h245 = "effect/xiaoxiang/pnt.vpcf",
 	}
 	GameRules:GetGameModeEntity().courier_ground_effect_list = {
 		h199 = "effect/gewugu/2.vpcf",
@@ -1977,7 +1979,7 @@ function DAC:InitGameMode()
 		h242 = 1.4,
 		h243 = 1.4,
 		h244 = 2.5,
-		h245 = 1,
+		h245 = 0.9,
 
 		--珍藏信使 pro
 		h301 = 1.3,
@@ -3884,7 +3886,7 @@ function ClearHand(team_id)
 	local h = TeamId2Hero(team_id)
 	if h ~= nil and h.hand_entities ~= nil then
 		for _,v in pairs(h.hand_entities) do
-			if v ~= nil then
+			if v ~= nil and v:IsNull() == false then
 				v:ForceKill(false)
 			end
 		end
@@ -5066,8 +5068,9 @@ function SyncHP(hero)
 	SetStat(hero:GetPlayerID(), 'round', GameRules:GetGameModeEntity().battle_round)
 	Timers:CreateTimer(0.3,function()
 		if hero:IsAlive() == false or hero:GetHealth() <= 0 then
+			GameRules:GetGameModeEntity().counterpart[hero:GetTeam()] = -1
 			SetRankingState(hero)
-			Timers:CreateTimer(0.3,function()
+			Timers:CreateTimer(0.5,function()
 				DealFuneralAffairs(hero)
 			end)
 		end
@@ -5077,7 +5080,6 @@ function DealFuneralAffairs(hero)
 	if hero:IsAlive() == true then
 		hero:ForceKill(false)
 	end
-	GameRules:GetGameModeEntity().counterpart[hero:GetTeam()] = -1
 
 	GameRules:GetGameModeEntity().stat_info[hero.steam_id]['gold'] = GameRules:GetGameModeEntity().stat_info[hero.steam_id]['gold'] + math.floor(hero:GetMana())		
 
@@ -5112,7 +5114,7 @@ function DealFuneralAffairs(hero)
 				AddAChessToChessPool(unitname)
 
 				for slot=0,8 do
-					if hero.hand_entities[i]:GetItemInSlot(slot)~= nil then
+					if hero.hand_entities[i]:GetItemInSlot(slot) ~= nil then
 						local name = hero.hand_entities[i]:GetItemInSlot(slot):GetAbilityName()
 						table.insert(gg_items,name)
 					end
@@ -5120,6 +5122,7 @@ function DealFuneralAffairs(hero)
 			end
 		end
 	end
+
 	SetStat(hero:GetPlayerID(), 'chess_lineup',lineup)
 
 	for slot=0,8 do
@@ -5788,12 +5791,13 @@ function StartAPVPRound()
 	--启动判断每个场地胜负的计时器（延时2秒）
 	Timers:CreateTimer(2,function()
 		for team = 6,13 do
-			if GameRules:GetGameModeEntity().counterpart[team] ~= nil then
+			if GameRules:GetGameModeEntity().counterpart[team] ~= nil and GameRules:GetGameModeEntity().counterpart[team] ~= -1 then
 				-- SaveMaxObj(team)
 				GameRules:GetGameModeEntity().battle_count = GameRules:GetGameModeEntity().battle_count + 1
 				StartWinLoseDrawTimerForTeam(team)
 			end
 		end
+		prt('本回合'..GameRules:GetGameModeEntity().battle_count..'个场地开战')
 	end)
 
 	--判断分是否战斗回合结束、进入准备回合的计时器（延时3秒）
@@ -5912,6 +5916,8 @@ function WinARound(team,mychess,my_last_chess)
 	if hero == nil or hero:IsNull() == true or hero:IsAlive() == false then
 		return
 	end
+	play_particle("particles/econ/events/ti9/shovel/shovel_baby_roshan_spawn.vpcf",PATTACH_ABSORIGIN_FOLLOW,hero,3)
+
 
 	GameRules:GetGameModeEntity().battle_count = GameRules:GetGameModeEntity().battle_count - 1
 
@@ -8641,11 +8647,15 @@ function DAC:OnPlayerChat(keys)
 			if GameRules:GetGameModeEntity().battle_round < 3 then
 				DAC:OnSuggestLiuju({player_id = hero:GetPlayerID()})
 			end
-
+			local dur = GameRules:GetGameTime() - GameRules:GetGameModeEntity().START_TIME
+			SetStat(hero:GetPlayerID(), 'duration', dur)
+			SetStat(hero:GetPlayerID(), 'round', GameRules:GetGameModeEntity().battle_round)
 			Timers:CreateTimer(0.5,function()
 				DamageTeam(team, 999)
 				if GameRules:GetGameModeEntity().p2_mode == true and GetP2Ally(team) ~= nil then
 					--2P模式，队友分担伤害
+					SetStat(TeamId2Hero(GetP2Ally(team)):GetPlayerID(), 'duration', dur)
+					SetStat(TeamId2Hero(GetP2Ally(team)):GetPlayerID(), 'round', GameRules:GetGameModeEntity().battle_round)
 					DamageTeam(GetP2Ally(team), 999)
 				end
 			end)
@@ -11012,14 +11022,12 @@ end
 function CollectAmazonData(dur,mode)
 	local base_data = {
 		version = '0.2',
+		map_name = GetMapName(),
 	    end_time= GameRules:GetGameModeEntity().send_time['end_time'],
 	    duration= dur,
 	    players = GameRules:GetGameModeEntity().send_info,
-	    chess_detail=GameRules:GetGameModeEntity().upload_detail_stat,
+	    chess_detail = GameRules:GetGameModeEntity().upload_detail_stat,
 	}
-	if mode ~= nil then
-		base_data['mode'] = mode
-	end
 	return base_data
 end
 
@@ -12571,6 +12579,11 @@ function CombineChessPlus(units, advance_unit_name)
 	--合成特效
 	-- play_particle("particles/units/unit_greevil/loot_greevil_death.vpcf",PATTACH_ABSORIGIN_FOLLOW,uu,3)
 	play_particle("particles/generic_hero_status/hero_levelup.vpcf",PATTACH_ABSORIGIN_FOLLOW,uu,3)
+	if string.find(uu:GetUnitName(),'11') then
+		play_particle("particles/econ/events/ti9/ti9_drums_musicnotes.vpcf",PATTACH_OVERHEAD_FOLLOW,uu,3)
+	else
+		play_particle("particles/econ/events/ti9/ti9_drums_musicnotes_b.vpcf",PATTACH_OVERHEAD_FOLLOW,uu,3)
+	end
 
 	--重新计算人口
 	CheckChess(team_id)
