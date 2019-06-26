@@ -8122,7 +8122,35 @@
 				"IsDebuff"	"1"
 				"Properties"
 				{
-					"MODIFIER_PROPERTY_MAGICAL_RESISTANCE_BONUS"	"-40"
+					"MODIFIER_PROPERTY_MAGICAL_RESISTANCE_BONUS"	"-35"
+				}
+				"Passive"	"1"
+				"EffectName"	"particles/items2_fx/veil_of_discord_debuff.vpcf"
+				"EffectAttachType"	"follow_overhead"
+			}
+		}
+	}
+
+	"is_mage_buff_plus_plus"
+	{
+		"BaseClass"	"ability_datadriven"
+		"AbilityTextureName"	"crystal_maiden_brilliance_aura"
+		"AbilityBehavior"	"DOTA_ABILITY_BEHAVIOR_HIDDEN | DOTA_ABILITY_BEHAVIOR_PASSIVE"
+		"AbilityUnitTargetType"	"DOTA_UNIT_TARGET_BASIC"
+		"AbilityUnitTargetTeam"	"DOTA_UNIT_TARGET_TEAM_ENEMY"
+		"precache"
+		{
+			"particle"	"particles/items2_fx/veil_of_discord_debuff.vpcf"
+		}
+		"Modifiers"
+		{
+			"modifier_is_mage_buff_plus_plus"
+			{
+				"TextureName"	"crystal_maiden_brilliance_aura"
+				"IsDebuff"	"1"
+				"Properties"
+				{
+					"MODIFIER_PROPERTY_MAGICAL_RESISTANCE_BONUS"	"-35"
 				}
 				"Passive"	"1"
 				"EffectName"	"particles/items2_fx/veil_of_discord_debuff.vpcf"
@@ -8206,7 +8234,7 @@
 				"IsDebuff"	"1"
 				"Properties"
 				{
-					"MODIFIER_PROPERTY_PHYSICAL_ARMOR_BONUS"	"-7"
+					"MODIFIER_PROPERTY_PHYSICAL_ARMOR_BONUS"	"-8"
 				}
 				"Passive"	"1"
 				"EffectName"	"particles/units/heroes/hero_skeletonking/wraith_king_ghosts_spirits_copy.vpcf"
@@ -8263,7 +8291,7 @@
 				"IsDebuff"	"0"
 				"Properties"
 				{
-					"MODIFIER_PROPERTY_MAGICAL_RESISTANCE_BONUS"	"35"
+					"MODIFIER_PROPERTY_MAGICAL_RESISTANCE_BONUS"	"45"
 				}
 				"Passive"	"1"
 				"EffectName"	"particles/units/heroes/hero_siren/naga_siren_song_debuff_b.vpcf"
@@ -8404,6 +8432,36 @@
 				"Properties"
 				{
 					"MODIFIER_PROPERTY_HEALTH_REGEN_CONSTANT"	"25"
+				}
+				"IsBuff"	"1"
+				"States"	{}
+				"Passive"	"1"
+				"EffectName"	"particles/items_fx/healing_flask.vpcf"
+				"EffectAttachType"	"follow_origin"
+			}
+		}
+	}
+
+	"is_mech_buff_plus_plus"
+	{
+		"BaseClass"	"ability_datadriven"
+		"AbilityTextureName"	"rattletrap_power_cogs"
+		"AbilityBehavior"	"DOTA_ABILITY_BEHAVIOR_HIDDEN | DOTA_ABILITY_BEHAVIOR_PASSIVE"
+		"AbilityUnitTargetType"	"DOTA_UNIT_TARGET_BASIC"
+		"AbilityUnitTargetTeam"	"DOTA_UNIT_TARGET_TEAM_FRIENDLY"
+		"precache"
+		{
+			"particle"	"particles/items_fx/healing_flask.vpcf"
+		}
+		"Modifiers"
+		{
+			"modifier_is_mech_buff_plus_plus"
+			{
+				"TextureName"	"rattletrap_power_cogs"
+				"IsDebuff"	"0"
+				"Properties"
+				{
+					"MODIFIER_PROPERTY_HEALTH_REGEN_CONSTANT"	"35"
 				}
 				"IsBuff"	"1"
 				"States"	{}
@@ -8705,7 +8763,7 @@
 				"IsDebuff"	"0"
 				"Properties"
 				{
-					"MODIFIER_PROPERTY_DAMAGEOUTGOING_PERCENTAGE"	"20"
+					"MODIFIER_PROPERTY_DAMAGEOUTGOING_PERCENTAGE"	"30"
 				}
 				"IsBuff"	"1"
 				"States"	{}

@@ -1542,11 +1542,13 @@ function DAC:InitGameMode()
 		is_warrior11 = { ability = 'is_warrior_buff_plus_plus', condition = 9, type = 1 },
 		is_mage = { ability = 'is_mage_buff', condition = 3, type = 3 },
 		is_mage1 = { ability = 'is_mage_buff_plus', condition = 6, type = 3 },
+		is_mage11 = { ability = 'is_mage_buff_plus_plus', condition = 9, type = 3 },
 		is_warlock = { ability = 'is_warlock_buff', condition = 2, type = 2 },
 		is_warlock1 = { ability = 'is_warlock_buff_plus', condition = 4, type = 2 },
 		is_warlock11 = { ability = 'is_warlock_buff_plus_plus', condition = 6, type = 2 },
 		is_mech = { ability = 'is_mech_buff', condition = 2, type = 1 },
 		is_mech1 = { ability = 'is_mech_buff_plus', condition = 4, type = 1 },
+		is_mech11 = { ability = 'is_mech_buff_plus_plus', condition = 6, type = 2 },
 		is_assassin = { ability = 'is_assassin_buff', condition = 3, type = 1 },
 		is_assassin1 = { ability = 'is_assassin_buff_plus', condition = 6, type = 1 },
 		is_assassin11 = { ability = 'is_assassin_buff_plus_plus', condition = 9, type = 1 },
@@ -1595,6 +1597,7 @@ function DAC:InitGameMode()
 		is_nraqi = {condition = 1 , type = 1, is_race = true },
 		is_god = { condition = 999, type = 2, is_race = true },
 		is_god1 = { condition = 999, type = 2, is_race = true },
+		is_god11 = { condition = 999, type = 2, is_race = true },
 	}
 
 	GameRules:GetGameModeEntity().class_type = {
@@ -5175,7 +5178,7 @@ end
 --根据玩家存活情况结算刚刚战败的玩家hero
 function SetRankingState(hero)
 	GameRules:GetGameModeEntity().counterpart[hero:GetTeam()] = -1
-	prt('battle count decreased to '..GameRules:GetGameModeEntity().battle_count)
+	-- prt('battle count decreased to '..GameRules:GetGameModeEntity().battle_count)
 	--hero是刚刚战败的玩家
 	local live_count = 0
 	local last_hero = nil
@@ -5430,7 +5433,7 @@ function StartAPVERound()
 			Timers:CreateTimer(function()
 				if GameRules:GetGameModeEntity().battle_timer <= 0 then
 					GameRules:GetGameModeEntity().battle_count = GameRules:GetGameModeEntity().battle_count - 1
-					prt('battle count decreased to '..GameRules:GetGameModeEntity().battle_count)
+					-- prt('battle count decreased to '..GameRules:GetGameModeEntity().battle_count)
 					EmitGlobalSound('crowd.lv_01')
 					AddStat(TeamId2Hero(m):GetPlayerID(),'draw_round')
 					ShowCombat({
@@ -5454,7 +5457,7 @@ function StartAPVERound()
 					end
 					if enemychess == 0 then
 						GameRules:GetGameModeEntity().battle_count = GameRules:GetGameModeEntity().battle_count - 1
-						prt('battle count decreased to '..GameRules:GetGameModeEntity().battle_count)
+						-- prt('battle count decreased to '..GameRules:GetGameModeEntity().battle_count)
 						for a,b in pairs(n) do
 							AddAbilityAndSetLevel(b,'act_victory')
 							b.alreadywon = true
@@ -5491,7 +5494,7 @@ function StartAPVERound()
 							end
 							if enemychess_new == 0 then
 								GameRules:GetGameModeEntity().battle_count = GameRules:GetGameModeEntity().battle_count - 1
-								prt('battle count decreased to '..GameRules:GetGameModeEntity().battle_count)
+								-- prt('battle count decreased to '..GameRules:GetGameModeEntity().battle_count)
 								for a,b in pairs(n) do
 									AddAbilityAndSetLevel(b,'act_victory')
 									b.alreadywon = true
@@ -5515,7 +5518,7 @@ function StartAPVERound()
 								AddStat(TeamId2Hero(m):GetPlayerID(),'draw_round')
 							else
 								GameRules:GetGameModeEntity().battle_count = GameRules:GetGameModeEntity().battle_count - 1
-								prt('battle count decreased to '..GameRules:GetGameModeEntity().battle_count)
+								-- prt('battle count decreased to '..GameRules:GetGameModeEntity().battle_count)
 
 								local hero = TeamId2Hero(m)
 								local curr_hp = hero:GetHealth()
@@ -5911,7 +5914,7 @@ function DrawARound(team)
 	end
 	
 	GameRules:GetGameModeEntity().battle_count = GameRules:GetGameModeEntity().battle_count - 1
-	prt('battle count decreased to '..GameRules:GetGameModeEntity().battle_count)
+	-- prt('battle count decreased to '..GameRules:GetGameModeEntity().battle_count)
 
 	if TeamId2Hero(team).cloud_opp_name ~= nil then
 		ShowCombat({
@@ -5942,7 +5945,7 @@ function WinARound(team,mychess,my_last_chess)
 
 
 	GameRules:GetGameModeEntity().battle_count = GameRules:GetGameModeEntity().battle_count - 1
-	prt('battle count decreased to '..GameRules:GetGameModeEntity().battle_count)
+	-- prt('battle count decreased to '..GameRules:GetGameModeEntity().battle_count)
 
 	--显示胜利！
 	local alive_units = GameRules:GetGameModeEntity().to_be_destory_list[team]
@@ -6013,7 +6016,7 @@ end
 function LoseARound(team,enemychess_new)
 	
 	GameRules:GetGameModeEntity().battle_count = GameRules:GetGameModeEntity().battle_count - 1
-	prt('battle count decreased to '..GameRules:GetGameModeEntity().battle_count)
+	-- prt('battle count decreased to '..GameRules:GetGameModeEntity().battle_count)
 
 	local hero = TeamId2Hero(team)
 	if hero == nil or hero:IsNull() == true or hero:IsAlive() == false then
@@ -8677,14 +8680,14 @@ function DAC:OnPlayerChat(keys)
 			SetStat(hero:GetPlayerID(), 'round', GameRules:GetGameModeEntity().battle_round)
 			Timers:CreateTimer(0.5,function()
 				GameRules:GetGameModeEntity().battle_count = GameRules:GetGameModeEntity().battle_count - 1
-				prt('dead battle count decreased to '..GameRules:GetGameModeEntity().battle_count)
+				-- prt('dead battle count decreased to '..GameRules:GetGameModeEntity().battle_count)
 				DamageTeam(team, 999)
 				if GameRules:GetGameModeEntity().p2_mode == true and GetP2Ally(team) ~= nil then
 					--2P模式，队友分担伤害
 					SetStat(TeamId2Hero(GetP2Ally(team)):GetPlayerID(), 'duration', dur)
 					SetStat(TeamId2Hero(GetP2Ally(team)):GetPlayerID(), 'round', GameRules:GetGameModeEntity().battle_round)
 					GameRules:GetGameModeEntity().battle_count = GameRules:GetGameModeEntity().battle_count - 1
-					prt('dead battle count decreased to '..GameRules:GetGameModeEntity().battle_count)
+					-- prt('dead battle count decreased to '..GameRules:GetGameModeEntity().battle_count)
 					DamageTeam(GetP2Ally(team), 999)
 				end
 			end)
@@ -11944,31 +11947,31 @@ function SendAmazonData(ctx,amzdate,datestamp)
 	}
 	local body_data = json.encode(data)
 	
-	-- local method = 'POST'
-	-- local service = 'kinesis'
-	-- local host = 'kinesis.cn-north-1.amazonaws.com.cn'
-	-- local region = 'cn-north-1'
-	-- local endpoint = 'https://kinesis.cn-north-1.amazonaws.com.cn'
-	-- local request_parameters = ""
-	-- local enc_AWS_ACCESS_KEY_ID = "25E104260341F0B8192CCFA4A909572DCE0898BE77EF35E955F70D67AB5491C5"
-	-- local AWS_ACCESS_KEY_ID = aeslua.decrypt(GetDedicatedServerKeyV2('bsl,bgbxh'),string.fromhex(enc_AWS_ACCESS_KEY_ID))
-	-- local access_key = AWS_ACCESS_KEY_ID
-	-- local enc_AWS_SECRET_ACCESS_KEY = '1321E5E71E43988F4F0CD5A14D15FCD658C2262EE44B2D7007BEA27A6D4A4ECD90FB0A6CAEA410DAD933F423FD9E8EAD'
-	-- local AWS_SECRET_ACCESS_KEY = aeslua.decrypt(GetDedicatedServerKeyV2('bsl,bgbxh'),string.fromhex(enc_AWS_SECRET_ACCESS_KEY))
-	-- local secret_key = AWS_SECRET_ACCESS_KEY
-
 	local method = 'POST'
 	local service = 'kinesis'
-	local host = 'kinesis.us-east-2.amazonaws.com'
-	local region = 'us-east-2'
-	local endpoint = 'https://kinesis.us-east-2.amazonaws.com'
+	local host = 'kinesis.cn-north-1.amazonaws.com.cn'
+	local region = 'cn-north-1'
+	local endpoint = 'https://kinesis.cn-north-1.amazonaws.com.cn'
 	local request_parameters = ""
-	local enc_AWS_ACCESS_KEY_ID = "03FAE7D6D1B989EAD761DFDEE153147317FD60EB75113C7B859D842A31B69E0E"
+	local enc_AWS_ACCESS_KEY_ID = "25E104260341F0B8192CCFA4A909572DCE0898BE77EF35E955F70D67AB5491C5"
 	local AWS_ACCESS_KEY_ID = aeslua.decrypt(GetDedicatedServerKeyV2('bsl,bgbxh'),string.fromhex(enc_AWS_ACCESS_KEY_ID))
 	local access_key = AWS_ACCESS_KEY_ID
-	local enc_AWS_SECRET_ACCESS_KEY = '315C8904ECCF3A4ADA7B611D8D153F7D029536A8B090336BB916C83E8F3A763E8CB2F4F0259DA73FDDD61DD7FB11FA9A'
+	local enc_AWS_SECRET_ACCESS_KEY = '1321E5E71E43988F4F0CD5A14D15FCD658C2262EE44B2D7007BEA27A6D4A4ECD90FB0A6CAEA410DAD933F423FD9E8EAD'
 	local AWS_SECRET_ACCESS_KEY = aeslua.decrypt(GetDedicatedServerKeyV2('bsl,bgbxh'),string.fromhex(enc_AWS_SECRET_ACCESS_KEY))
 	local secret_key = AWS_SECRET_ACCESS_KEY
+
+	-- local method = 'POST'
+	-- local service = 'kinesis'
+	-- local host = 'kinesis.us-east-2.amazonaws.com'
+	-- local region = 'us-east-2'
+	-- local endpoint = 'https://kinesis.us-east-2.amazonaws.com'
+	-- local request_parameters = ""
+	-- local enc_AWS_ACCESS_KEY_ID = "03FAE7D6D1B989EAD761DFDEE153147317FD60EB75113C7B859D842A31B69E0E"
+	-- local AWS_ACCESS_KEY_ID = aeslua.decrypt(GetDedicatedServerKeyV2('bsl,bgbxh'),string.fromhex(enc_AWS_ACCESS_KEY_ID))
+	-- local access_key = AWS_ACCESS_KEY_ID
+	-- local enc_AWS_SECRET_ACCESS_KEY = '315C8904ECCF3A4ADA7B611D8D153F7D029536A8B090336BB916C83E8F3A763E8CB2F4F0259DA73FDDD61DD7FB11FA9A'
+	-- local AWS_SECRET_ACCESS_KEY = aeslua.decrypt(GetDedicatedServerKeyV2('bsl,bgbxh'),string.fromhex(enc_AWS_SECRET_ACCESS_KEY))
+	-- local secret_key = AWS_SECRET_ACCESS_KEY
 
 	local canonical_uri = '/'
 	local canonical_querystring = request_parameters
@@ -12425,7 +12428,7 @@ function ExtraAttack(keys)
 	--实测效果不稳定
 	local caster = keys.caster
 	local target = keys.target
-	prt('额外攻击'..caster:GetUnitName()..'-->'..target:GetUnitName())
+	-- prt('额外攻击'..caster:GetUnitName()..'-->'..target:GetUnitName())
 	caster:PerformAttack(target, true, true, true, false, false, false, true)
 end
 
