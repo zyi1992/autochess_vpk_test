@@ -1,11 +1,15 @@
 "AddonInfo"
 {
-	"maps"			"ranked_1x8 casual_1x8 casual_2x4"
+	"maps"			"ranked_1x8 ranked_2x4 casual_1x8 casual_2x4 "
 	"IsPlayable"	"1"
-	"ranked_1x8"
-	{
-		"MaxPlayers"                    "8"
-	}
+    "ranked_1x8"
+    {
+        "MaxPlayers"                    "8"
+    }
+    "ranked_2x4"
+    {
+        "MaxPlayers"                    "8"
+    }
     "casual_1x8"
     {
         "MaxPlayers"                    "8"
@@ -27,6 +31,12 @@
             "Key"       "TAB"
             "Command"   "+TabHome"
             "Name"      "TabHome"
+        }
+        "03"
+        {
+            "Key"       "2"
+            "Command"   "+ToggleStat"
+            "Name"      "ToggleStat"
         }
         "11"
         {
